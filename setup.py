@@ -11,6 +11,7 @@ setup(
     version='1.0',
     description='Keras sequence generators for video data',
     long_description=long_description,
+    long_description_content_type="text/markdown",
     author='Patrice Ferlet',
     author_email='metal3d@gmail.com',
     url='https://github.com/metal3d/keras-video-generators',
