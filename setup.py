@@ -13,7 +13,7 @@ setup(
     long_description=long_description,
     author='Patrice Ferlet',
     author_email='metal3d@gmail.com',
-    url='https://www.metal3d.org',
+    url='https://github.com/metal3d/keras-video-generators',
     ext_modules=cythonize("src/keras_video/*.py"),
     packages=find_packages(),
     install_requires=[
