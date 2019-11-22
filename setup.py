@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name='Keras-Video-Generators',
+    name='keras-video-generators',
     version='1.0',
     description='Keras sequence generators for video data',
     long_description=long_description,

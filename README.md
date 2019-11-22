@@ -1,4 +1,4 @@
-# Keras Video generator
+# Keras Sequence Video generators
 
 This package proposes some classes to work with Keras (included in TensorFlow) that generates batches of frames from video files.
 
@@ -23,7 +23,7 @@ If you want to compile the package, you need:
 You can install the package via `pip`:
 
 ```bash
-pip install keras_video
+pip install keras-video-generators
 ```
 
 If you want to build from sources, clone the repository then:
