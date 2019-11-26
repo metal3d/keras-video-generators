@@ -1,8 +1,0 @@
-\babel@toc {english}{}
-\contentsline {chapter}{\numberline {1}Video Generator package}{1}{chapter.1}% 
-\contentsline {chapter}{\numberline {2}VideoFrameGenerator - Simple Generator}{3}{chapter.2}% 
-\contentsline {chapter}{\numberline {3}Sliding frames}{5}{chapter.3}% 
-\contentsline {chapter}{\numberline {4}Optical Flow Generator}{7}{chapter.4}% 
-\contentsline {chapter}{\numberline {5}Indices and tables}{9}{chapter.5}% 
-\contentsline {chapter}{Python Module Index}{11}{section*.18}% 
-\contentsline {chapter}{Index}{13}{section*.19}% 

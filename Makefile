@@ -5,9 +5,8 @@ build:
 .ONESHELL:
 doc:
 	source v/bin/activate
-	cd sphinx-docs
+	cd docs
 	make html
-	cp -ra _build/html ../docs
 
 clean:
 	rm -rf *.egg-info build dist
