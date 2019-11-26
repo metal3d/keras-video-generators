@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Welcome to Keras Video Generator’s documentation! &#8212; Keras Video Generator  documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">Keras Video Generator  documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-keras-video-generator-s-documentation">
+<h1>Welcome to Keras Video Generator’s documentation!<a class="headerlink" href="#welcome-to-keras-video-generator-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Simply use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install <code class="docutils literal notranslate"><span class="pre">keras_video</span></code> package:</p>
+<blockquote>
+<div><p>pip install keras_video</p>
+</div></blockquote>
+<p>Then you will be able to import the module:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">keras_video</span>
+
+<span class="n">generator</span> <span class="o">=</span> <span class="n">keras_video</span><span class="o">.</span><span class="n">VideoFrameGenerator</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Note that classes are placed in several sub-modules in the package, but there are alias in the package file. That means that
+instead of using <code class="docutils literal notranslate"><span class="pre">keras_video.VideoFrameGenerator</span></code>, you can use <code class="docutils literal notranslate"><span class="pre">keras_vide.VideoFrameGenerator</span></code>.</p>
+</div>
+<div class="section" id="module-keras_video">
+<span id="package-documentation"></span><h2>Package documentation<a class="headerlink" href="#module-keras_video" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="video-generator-package">
+<h3>Video Generator package<a class="headerlink" href="#video-generator-package" title="Permalink to this headline">¶</a></h3>
+<p>Provides generators for video sequence that can be injected in Time Distributed layer.</p>
+<p>It is made to provide several types of sequences:</p>
+<ul class="simple">
+<li><p>Frames from video</p></li>
+<li><p>Sliding samples of frame from video</p></li>
+<li><p>Optical Flow variation</p></li>
+</ul>
+<p>So the package provides 3 classes. The mother class is VideoFrameGenerator,
+and the other ones inherits from it.</p>
+<p>Each generator can use ImageDataGenerator from keras to make data augmentation,
+and takes common params as <cite>nb_frames</cite>, <cite>batch_size</cite>, and so on.</p>
+<p>The goal is to provide <code class="docutils literal notranslate"><span class="pre">(BS,</span> <span class="pre">N,</span> <span class="pre">W,</span> <span class="pre">H,</span> <span class="pre">C)</span></code> shape of data where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BS</span></code> is the batch size</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of frames</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">W</span></code> and <code class="docutils literal notranslate"><span class="pre">H</span></code> are width and height</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">C</span></code> is the number of channels (1 for gray scale, 3 for RGB)</p></li>
+</ul>
+<p>For example <code class="docutils literal notranslate"><span class="pre">(16,</span> <span class="pre">5,</span> <span class="pre">224,</span> <span class="pre">224,</span> <span class="pre">3)</span></code> is a batch of 16 sequences where
+sequence has got 5 frames sized to <code class="docutils literal notranslate"><span class="pre">(224,</span> <span class="pre">224)</span></code> in RGB.</p>
+</div>
+<span class="target" id="module-keras_video.generator"></span><div class="section" id="videoframegenerator-simple-generator">
+<h3>VideoFrameGenerator - Simple Generator<a class="headerlink" href="#videoframegenerator-simple-generator" title="Permalink to this headline">¶</a></h3>
+<p>A simple frame generator that takes distributed frames from
+videos. It is useful for videos that are scaled from frame 0 to end
+and that have no noise frames.</p>
+<dl class="class">
+<dt id="keras_video.generator.VideoFrameGenerator">
+<em class="property">class </em><code class="sig-prename descclassname">keras_video.generator.</code><code class="sig-name descname">VideoFrameGenerator</code><span class="sig-paren">(</span><em class="sig-param">rescale=0.00392156862745098</em>, <em class="sig-param">nb_frames: int = 5</em>, <em class="sig-param">classes: list = []</em>, <em class="sig-param">batch_size: int = 16</em>, <em class="sig-param">use_frame_cache: bool = False</em>, <em class="sig-param">target_shape: tuple = (224</em>, <em class="sig-param">224)</em>, <em class="sig-param">shuffle: bool = True</em>, <em class="sig-param">transformation: keras.preprocessing.image.ImageDataGenerator = None</em>, <em class="sig-param">split: float = None</em>, <em class="sig-param">nb_channel: int = 3</em>, <em class="sig-param">glob_pattern: str = './videos/{classname}/*.avi'</em>, <em class="sig-param">_validation_data: list = None</em><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.generator.VideoFrameGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a generator that return batches of frames from video</p>
+<ul class="simple">
+<li><p>rescale: float fraction to rescale pixel data (commonly 1/255.)</p></li>
+<li><p>nb_frames: int, number of frames to return for each sequence</p></li>
+<li><p>classes: list of str, classes to infer</p></li>
+<li><p>batch_size: int, batch size for each loop</p></li>
+<li><p>use_frame_cache: bool, use frame cache (may take a lot of memory for         large dataset)</p></li>
+<li><p>shape: tuple, target size of the frames</p></li>
+<li><p>shuffle: bool, randomize files</p></li>
+<li><p>transformation: ImageDataGenerator with transformations</p></li>
+<li><p>split: float, factor to split files and validation</p></li>
+<li><p>nb_channel: int, 1 or 3, to get grayscaled or RGB images</p></li>
+<li><p>glob_pattern: string, directory path with ‘{classname}’ inside that         will be replaced by one of the class list</p></li>
+<li><p>_validation_data: already filled list of data, <strong>do not touch !</strong></p></li>
+</ul>
+<p>You may use the “classes” property to retrieve the class list afterward.</p>
+<p>The generator has that properties initialized:</p>
+<ul class="simple">
+<li><p>classes_count: number of classes that the generator manages</p></li>
+<li><p>files_count: number of video that the generator can provides</p></li>
+<li><p>classes: the given class list</p></li>
+<li><p>files: the full file list that the generator will use, this         is usefull if you want to remove some files that should not be         used by the generator.</p></li>
+</ul>
+<dl class="method">
+<dt id="keras_video.generator.VideoFrameGenerator.get_validation_generator">
+<code class="sig-name descname">get_validation_generator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.generator.VideoFrameGenerator.get_validation_generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the validation generator if you’ve provided split factor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="keras_video.generator.VideoFrameGenerator.on_epoch_end">
+<code class="sig-name descname">on_epoch_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.generator.VideoFrameGenerator.on_epoch_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by Keras after each epoch</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span class="target" id="module-keras_video.sliding"></span><div class="section" id="sliding-frames">
+<h3>Sliding frames<a class="headerlink" href="#sliding-frames" title="Permalink to this headline">¶</a></h3>
+<p>That module provides the SlidingFrameGenerator that is helpful
+to get more sequence from one video file. The goal is to provide decayed
+sequences for the same action.</p>
+<dl class="class">
+<dt id="keras_video.sliding.SlidingFrameGenerator">
+<em class="property">class </em><code class="sig-prename descclassname">keras_video.sliding.</code><code class="sig-name descname">SlidingFrameGenerator</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">sequence_time: int = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.sliding.SlidingFrameGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>SlidingFrameGenerator is useful to get several sequence of
+the same “action” by sliding the cursor of video. For example, with a
+video that have 60 frames using 30 frames per second, and if you want
+to pick 6 frames, the generator will return:</p>
+<ul class="simple">
+<li><p>one sequence with frame <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">0,</span>&#160; <span class="pre">5,</span> <span class="pre">10,</span> <span class="pre">15,</span> <span class="pre">20,</span> <span class="pre">25]</span></code></p></li>
+<li><p>then <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">1,</span>&#160; <span class="pre">6,</span> <span class="pre">11,</span> <span class="pre">16,</span> <span class="pre">21,</span> <span class="pre">26])</span></code></p></li>
+<li><p>and so on to frame 30</p></li>
+</ul>
+<p>If you set <cite>sequence_time</cite> parameter, so the sequence will be reduce to
+the given time.</p>
+<p>params:</p>
+<ul class="simple">
+<li><p>sequence_time: int seconds of the sequence to fetch, if None, the entire         vidoe time is used</p></li>
+</ul>
+<p>from VideoFrameGenerator:</p>
+<ul class="simple">
+<li><p>rescale: float fraction to rescale pixel data (commonly 1/255.)</p></li>
+<li><p>nb_frames: int, number of frames to return for each sequence</p></li>
+<li><p>classes: list of str, classes to infer</p></li>
+<li><p>batch_size: int, batch size for each loop</p></li>
+<li><p>use_frame_cache: bool, use frame cache (may take a lot of memory for         large dataset)</p></li>
+<li><p>shape: tuple, target size of the frames</p></li>
+<li><p>shuffle: bool, randomize files</p></li>
+<li><p>transformation: ImageDataGenerator with transformations</p></li>
+<li><p>split: float, factor to split files and validation</p></li>
+<li><p>nb_channel: int, 1 or 3, to get grayscaled or RGB images</p></li>
+<li><dl class="simple">
+<dt>glob_pattern: string, directory path with ‘{classname}’ inside that</dt><dd><p>will be replaced by one of the class list</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="method">
+<dt id="keras_video.sliding.SlidingFrameGenerator.get_validation_generator">
+<code class="sig-name descname">get_validation_generator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.sliding.SlidingFrameGenerator.get_validation_generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the validation generator if you’ve provided split factor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="keras_video.sliding.SlidingFrameGenerator.on_epoch_end">
+<code class="sig-name descname">on_epoch_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.sliding.SlidingFrameGenerator.on_epoch_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by Keras after each epoch</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span class="target" id="module-keras_video.flow"></span><div class="section" id="optical-flow-generator">
+<h3>Optical Flow Generator<a class="headerlink" href="#optical-flow-generator" title="Permalink to this headline">¶</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This module is not stable !</p>
+</div>
+<p>The purpose of that module is to return optical flow sequences from a video.</p>
+<p>Several methods are defined:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Use standard optical flow METHOD_OPTICAL_FLOW=1</p></li>
+<li><p>Use optical flow as a mask on video METHOD_FLOW_MASK=2</p></li>
+<li><p>Use absolute diff mask on video METHOD_DIFF_MASK=3</p></li>
+<li><p>Use abs diff  METHOD_ABS_DIFF=4</p></li>
+</ul>
+</div></blockquote>
+<dl class="class">
+<dt id="keras_video.flow.OpticalFlowGenerator">
+<em class="property">class </em><code class="sig-prename descclassname">keras_video.flow.</code><code class="sig-name descname">OpticalFlowGenerator</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">nb_frames=5</em>, <em class="sig-param">method=1</em>, <em class="sig-param">flowlevel=3</em>, <em class="sig-param">iterations=3</em>, <em class="sig-param">winsize=15</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.flow.OpticalFlowGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate optical flow sequence from frames in videos. It can
+use different methods.</p>
+<p>params:</p>
+<ul class="simple">
+<li><p>method: METHOD_OPTICAL_FLOW, METHOD_FLOW_MASK, METHOD_DIFF_MASK,         METHOD_ABS_DIFF</p></li>
+<li><p>flowlevel: integer that give the flow level to calcOpticalFlowFarneback</p></li>
+<li><p>iterations: integer number of iterations for calcOpticalFlowFarneback</p></li>
+<li><p>winsize: flow window size for calcOpticalFlowFarneback</p></li>
+</ul>
+<p>from VideoFrameGenerator:</p>
+<ul class="simple">
+<li><p>rescale: float fraction to rescale pixel data (commonly 1/255.)</p></li>
+<li><p>nb_frames: int, number of frames to return for each sequence</p></li>
+<li><p>classes: list of str, classes to infer</p></li>
+<li><p>batch_size: int, batch size for each loop</p></li>
+<li><p>use_frame_cache: bool, use frame cache (may take a lot of memory for         large dataset)</p></li>
+<li><p>shape: tuple, target size of the frames</p></li>
+<li><p>shuffle: bool, randomize files</p></li>
+<li><p>transformation: ImageDataGenerator with transformations</p></li>
+<li><p>split: float, factor to split files and validation</p></li>
+<li><p>nb_channel: int, 1 or 3, to get grayscaled or RGB images</p></li>
+<li><dl class="simple">
+<dt>glob_pattern: string, directory path with ‘{classname}’ inside that</dt><dd><p>will be replaced by one of the class list</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="method">
+<dt id="keras_video.flow.OpticalFlowGenerator.absdiff">
+<code class="sig-name descname">absdiff</code><span class="sig-paren">(</span><em class="sig-param">images</em><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.flow.OpticalFlowGenerator.absdiff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get absolute differences between 2 images</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="keras_video.flow.OpticalFlowGenerator.diff_mask">
+<code class="sig-name descname">diff_mask</code><span class="sig-paren">(</span><em class="sig-param">images</em><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.flow.OpticalFlowGenerator.diff_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get absolute diff mask, then merge frames and apply the mask</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="keras_video.flow.OpticalFlowGenerator.flow_mask">
+<code class="sig-name descname">flow_mask</code><span class="sig-paren">(</span><em class="sig-param">images</em><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.flow.OpticalFlowGenerator.flow_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get optical flow on images, then merge images and apply the mask</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="keras_video.flow.OpticalFlowGenerator.get_validation_generator">
+<code class="sig-name descname">get_validation_generator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.flow.OpticalFlowGenerator.get_validation_generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the validation generator if you’ve provided split factor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="keras_video.flow.OpticalFlowGenerator.make_optical_flow">
+<code class="sig-name descname">make_optical_flow</code><span class="sig-paren">(</span><em class="sig-param">images</em><span class="sig-paren">)</span><a class="headerlink" href="#keras_video.flow.OpticalFlowGenerator.make_optical_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process Farneback Optical Flow on images</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to Keras Video Generator’s documentation!</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#module-keras_video">Package documentation</a><ul>
+<li><a class="reference internal" href="#video-generator-package">Video Generator package</a></li>
+<li><a class="reference internal" href="#videoframegenerator-simple-generator">VideoFrameGenerator - Simple Generator</a></li>
+<li><a class="reference internal" href="#sliding-frames">Sliding frames</a></li>
+<li><a class="reference internal" href="#optical-flow-generator">Optical Flow Generator</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">Keras Video Generator  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Patrice Ferlet.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+    </div>
+  </body>
+</html>
