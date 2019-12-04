@@ -14,7 +14,6 @@ Requirements are:
 
 If you want to compile the package, you need:
 
-- Cython to compile the wheel package
 - sphinx to compile doc
 - setuptools
 
