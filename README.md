@@ -1,3 +1,5 @@
+[![PyPI version](https://badge.fury.io/py/keras-video-generators.svg)](https://pypi.org/project/keras-video-generators/)
+
 # Keras Sequence Video generators
 
 This package proposes some classes to work with Keras (included in TensorFlow) that generates batches of frames from video files.
