@@ -72,7 +72,7 @@ class VideoFrameGenerator(Sequence):
 
         # split factor should be a propoer value
         if split is not None:
-            assert 0.0 > split < 1.0
+            assert 0.0 < split < 1.0
 
         # be sure that classes are well ordered
         classes.sort()
