@@ -9,4 +9,4 @@ doc:
 	make html
 
 clean:
-	rm -rf *.egg-info build dist
+	rm -rf *.egg-info build dist src/keras_video_generators.egg-info
