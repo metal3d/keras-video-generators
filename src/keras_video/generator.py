@@ -191,38 +191,38 @@ class VideoFrameGenerator(Sequence):
 
             if video not in self.__frame_cache:
                 cap = cv.VideoCapture(video)
+                total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                frame_step = floor(total_frames/nbframe/2)
                 frames = []
+                frame_i = 0
                 while True:
+                    
                     grabbed, frame = cap.read()
                     if not grabbed:
                         # end of video
                         break
+                    
+                    frame_i += 1
+                    if frame_i % frame_step == 0:
+                        
+                        # resize
+                        frame = cv.resize(frame, shape)
 
-                    # resize
-                    frame = cv.resize(frame, shape)
+                        # use RGB or Grayscale ?
+                        if self.nb_channel == 3:
+                            frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+                        else:
+                            frame = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
 
-                    # use RGB or Grayscale ?
-                    if self.nb_channel == 3:
-                        frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-                    else:
-                        frame = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
+                        # to np
+                        frame = img_to_array(frame) * self.rescale
 
-                    # to np
-                    frame = img_to_array(
-                        frame) * self.rescale
-
-                    # keep frame
-                    frames.append(frame)
-
-                # Add 2 frames to drop first and last frame
-                jump = len(frames)//(nbframe+2)
-
-                # get only some images
-                try:
-                    frames = frames[jump::jump][:nbframe]
-                except Exception as exception:
-                    print(video)
-                    raise exception
+                        # keep frame
+                        frames.append(frame)
+                        
+                        # Break once the appropriate number of frames is collected
+                        if len(frames) == nbframe:
+                            break
 
                 # add to frame cache to not read from disk later
                 if self.use_frame_cache:
