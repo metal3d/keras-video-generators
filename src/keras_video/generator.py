@@ -11,6 +11,7 @@ import os
 import glob
 import numpy as np
 import cv2 as cv
+from math import floor
 from keras.utils.data_utils import Sequence
 from keras.preprocessing.image import ImageDataGenerator, img_to_array
 
