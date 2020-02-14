@@ -12,6 +12,7 @@ sequences for the same action.
 import os
 import numpy as np
 import cv2 as cv
+from math import floor
 import keras.preprocessing.image
 from .generator import VideoFrameGenerator
 
@@ -129,10 +130,11 @@ class SlidingFrameGenerator(VideoFrameGenerator):
     def __getitem__(self, idx):
         classes = self.classes
         shape = self.target_shape
-
+        nbframe = self.nbframe
+        
         labels = []
         images = []
-
+        
         indexes = self.indexes[idx*self.batch_size:(idx+1)*self.batch_size]
 
         transformation = None
@@ -153,30 +155,37 @@ class SlidingFrameGenerator(VideoFrameGenerator):
 
             if vid['id'] not in self.__frame_cache:
                 cap = cv.VideoCapture(video)
+                total_frames = cap.get(cv.CAP_PROP_FRAME_COUNT)
+                frame_step = floor(total_frames/nbframe/2)
                 frames = []
+                frame_i = 0
+                
                 while True:
                     grabbed, frame = cap.read()
                     if not grabbed:
                         cap.release()
                         break
+                    
+                    frame_i += 1
+                    if frame_i % frame_step == 0:
+                        # resize
+                        frame = cv.resize(frame, shape)
 
-                    # resize
-                    frame = cv.resize(frame, shape)
+                        # use RGB or Grayscale ?
+                        if self.nb_channel == 3:
+                            frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+                        else:
+                            frame = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
 
-                    # use RGB or Grayscale ?
-                    if self.nb_channel == 3:
-                        frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-                    else:
-                        frame = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
+                        # to np
+                        frame = keras.preprocessing.image.img_to_array(
+                            frame) * self.rescale
 
-                    # to np
-                    frame = keras.preprocessing.image.img_to_array(
-                        frame) * self.rescale
+                        # keep frame
+                        frames.append(frame)
 
-                    # keep frame
-                    frames.append(frame)
-
-                frames = [frames[j] for j in vid.get('frames')]
+                        if len(frames) == nbframe:
+                            break
 
                 # add to frame cache to not read from disk later
                 if self.use_frame_cache:
