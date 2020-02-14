@@ -1,7 +1,6 @@
 """
 VideoFrameGenerator - Simple Generator
 --------------------------------------
-
 A simple frame generator that takes distributed frames from
 videos. It is useful for videos that are scaled from frame 0 to end
 and that have no noise frames.
@@ -13,12 +12,12 @@ import numpy as np
 import cv2 as cv
 from keras.utils.data_utils import Sequence
 from keras.preprocessing.image import ImageDataGenerator, img_to_array
-
+import logging
+log = logging.getLogger()
 
 class VideoFrameGenerator(Sequence):
     """
     Create a generator that return batches of frames from video
-
     - rescale: float fraction to rescale pixel data (commonly 1/255.)
     - nb_frames: int, number of frames to return for each sequence
     - classes: list of str, classes to infer
@@ -32,12 +31,9 @@ class VideoFrameGenerator(Sequence):
     - nb_channel: int, 1 or 3, to get grayscaled or RGB images
     - glob_pattern: string, directory path with '{classname}' inside that \
         will be replaced by one of the class list
-    - _validation_data: already filled list of data, **do not touch !**
-
+    
     You may use the "classes" property to retrieve the class list afterward.
-
     The generator has that properties initialized:
-
     - classes_count: number of classes that the generator manages
     - files_count: number of video that the generator can provides
     - classes: the given class list
@@ -56,11 +52,21 @@ class VideoFrameGenerator(Sequence):
             target_shape: tuple = (224, 224),
             shuffle: bool = True,
             transformation: ImageDataGenerator = None,
-            split: float = None,
+            split_test: float = None,
+            split_val: float = None,
             nb_channel: int = 3,
             glob_pattern: str = './videos/{classname}/*.avi',
-            _validation_data: list = None):
-
+            *args,
+            **kwargs):
+        
+        # deprecation
+        if 'split' in kwargs:
+            log.warn("Warning, `split` argument is replaced by `split_val`, "
+                  "please condider to change your source code."
+                  "The `split` argument will be removed in future releases.")
+            split_val = float(kwargs.get('split'))
+        
+        
         # should be only RGB or Grayscale
         assert nb_channel in (1, 3)
 
@@ -69,11 +75,19 @@ class VideoFrameGenerator(Sequence):
 
         # shape size should be 2
         assert len(target_shape) == 2
-
+        
         # split factor should be a propoer value
-        if split is not None:
-            assert 0.0 < split < 1.0
+        if split_val is not None:
+            assert 0.0 < split_val < 1.0
 
+        if split_test is not None:
+            assert 0.0 < split_test < 1.0
+
+        
+        # then we don't need None anymore
+        split_val = split_val if split_val is not None else 0.0
+        split_test = split_test if split_test is not None else 0.0
+            
         # be sure that classes are well ordered
         classes.sort()
 
@@ -91,32 +105,59 @@ class VideoFrameGenerator(Sequence):
         self.__frame_cache = {}
         self.files = []
         self.validation = []
+        self.test = []
 
+        _validation_data = kwargs.get('_validation_data', None)
+        _test_data = kwargs.get('_test_data', None)
         if _validation_data is not None:
             # we only need to set files here
             self.files = _validation_data
+        
+        elif _test_data is not None :
+            # we only need to set files here
+            self.files = _test_data
+            
         else:
-            if split is not None and split > 0.0:
+            if split_val > 0 or split_test > 0:
                 for cls in classes:
                     files = glob.glob(glob_pattern.format(classname=cls))
-                    nbval = int(split * len(files))
+                    nbval = 0
+                    nbtest = 0
+                    info = []
 
-                    print("class %s, validation count: %d" % (cls, nbval))
-
-                    # generate validation indexes
+                    # generate validation and test indexes
                     indexes = np.arange(len(files))
 
                     if shuffle:
                         np.random.shuffle(indexes)
 
-                    val = np.random.permutation(
-                        indexes)[:nbval]  # get some sample
-                    # remove validation from train
-                    indexes = np.array([i for i in indexes if i not in val])
+                    if 0.0 < split_val < 1.0:
+                        nbval = int(split_val * len(files))
+                        nbtrain = len(files) - nbval
+                    
+                        # get some sample for validation_data
+                        val = np.random.permutation(indexes)[:nbval]   
 
+                         # remove validation from train    
+                        indexes = np.array([i for i in indexes if i not in val]) 
+                        self.validation += [files[i] for i in val]
+                        info.append("validation count: %d" % nbval)
+
+                    if 0.0 < split_test < 1.0:
+                        nbtest = int(split_test * nbtrain)
+                        nbtrain = len(files) - nbval - nbtest
+                        
+                        # get some sample for test_data
+                        val_test = np.random.permutation(indexes)[:nbtest]
+                        
+                        # remove test from train
+                        indexes = np.array([i for i in indexes if i not in val_test])
+                        self.test +=[files [i] for i in val_test]
+                        info.append("test count: %d" % nbtest)
+                    
                     # and now, make the file list
                     self.files += [files[i] for i in indexes]
-                    self.validation += [files[i] for i in val]
+                    print("class %s, %s, train count: %d" % (cls, ", ".join(info), nbtrain))
 
             else:
                 for cls in classes:
@@ -130,10 +171,17 @@ class VideoFrameGenerator(Sequence):
         # to initialize transformations and shuffle indices
         self.on_epoch_end()
 
-        print("get %d classes for %d files for %s" % (
+        
+        kind = "train"
+        if _validation_data is not None:
+            kind = "validation"
+        elif _test_data is not None:
+            kind = "test"
+            
+        print("Total data: %d classes for %d files for %s" % (
             self.classes_count,
             self.files_count,
-            'train' if _validation_data is None else 'validation'))
+            kind))
 
     def get_validation_generator(self):
         """ Return the validation generator if you've provided split factor """
@@ -146,6 +194,18 @@ class VideoFrameGenerator(Sequence):
             shuffle=self.shuffle,
             rescale=self.rescale,
             _validation_data=self.validation)
+
+    def get_test_generator(self):
+        """ Return the validation generator if you've provided split factor """
+        return self.__class__(
+            nb_frames=self.nbframe,
+            nb_channel=self.nb_channel,
+            target_shape=self.target_shape,
+            classes=self.classes,
+            batch_size=self.batch_size,
+            shuffle=self.shuffle,
+            rescale=self.rescale,
+            _test_data=self.test)
 
     def on_epoch_end(self):
         """ Called by Keras after each epoch """
