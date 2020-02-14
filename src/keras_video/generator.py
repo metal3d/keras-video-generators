@@ -93,19 +93,21 @@ class VideoFrameGenerator(Sequence):
         self.validation = []
         self.test = []
 
-        if _validation_data is not None and _test_data is not None :
+        if _validation_data is not None:
             # we only need to set files here
-            self.files_val = _validation_data
-            self.files_test = _test_data
+            self.files = _validation_data
+        
+        elif _test_data is not None :
+            # we only need to set files here
+            self.files = _test_data
+            
         else:
-            if split_val is not None and split_test is not None and split_val > 0.0 and split_test > 0.0:
+            if split_val is not None or split_test is not None:
                 for cls in classes:
                     files = glob.glob(glob_pattern.format(classname=cls))
-                    nbval = int(split_val * len(files))
-                    nbtest = int(split_test * (len(files) - nbval))
-                    nbtrain = len(files) - (nbval + nbtest)
-
-                    print("class %s, validation count: %d, test count: %d, train count: %d" % (cls, nbval,nbtest,nbtrain))
+                    nbval = 0
+                    nbtest = 0
+                    info = []
 
                     # generate validation and test indexes
                     indexes = np.arange(len(files))
@@ -113,45 +115,33 @@ class VideoFrameGenerator(Sequence):
                     if shuffle:
                         np.random.shuffle(indexes)
 
-                    val = np.random.permutation(
-                        indexes)[:nbval]  # get some sample for validation_data 
-                        
-                     # remove validation from train    
-                    indexes = np.array([i for i in indexes if i not in val]) 
-                        
-                    val_test = np.random.permutation(
-                        indexes)[:nbval_test]  # get some sample for test_data
-                        
-                    # remove test from train
-                    indexes = np.array([i for i in indexes if i not in val_test])
-
-                    # and now, make the file list
-                    self.files += [files[i] for i in indexes]
-                    self.validation += [files[i] for i in val]  
-                    self.test +=[files [i] for i in val_test]
+                    if 0.0 < split_val < 1.0:
+                        nbval = int(split_val * len(files))
+                        nbtrain = len(files) - nbval
                     
-            elif  split_val is not None and split_test is None : # and split_val > 0.0
-                for cls in classes:
-                    files = glob.glob(glob_pattern.format(classname=cls))
-                    nbval = int(split * len(files))
-                    nbtrain = len(files) - nbval
+                        # get some sample for validation_data
+                        val = np.random.permutation(indexes)[:nbval]   
 
-                    print("class %s, validation count: %d, train count %d" % (cls, nbval, nbtrain))
+                         # remove validation from train    
+                        indexes = np.array([i for i in indexes if i not in val]) 
+                        self.validation += [files[i] for i in val]
+                        info.append("validation count: %d" % nbval)
 
-                    # generate validation indexes
-                    indexes = np.arange(len(files))
-
-                    if shuffle:
-                        np.random.shuffle(indexes)
-
-                    val = np.random.permutation(
-                        indexes)[:nbval]  # get some sample
-                    # remove validation from train
-                    indexes = np.array([i for i in indexes if i not in val])
-
+                    if 0.0 < split_test < 1.0:
+                        nbtest = int(split_test * nbtrain)
+                        nbtrain = len(files) - nbval - nbtest
+                        
+                        # get some sample for test_data
+                        val_test = np.random.permutation(indexes)[:nbtest]
+                        
+                        # remove test from train
+                        indexes = np.array([i for i in indexes if i not in val_test])
+                        self.test +=[files [i] for i in val_test]
+                        info.append("test count: %d" % nbtest)
+                    
                     # and now, make the file list
                     self.files += [files[i] for i in indexes]
-                    self.validation += [files[i] for i in val]
+                    print("class %s, %s, train count: %d" % (cls, ", ".join(info), nbtrain))
 
             else:
                 for cls in classes:
@@ -165,10 +155,17 @@ class VideoFrameGenerator(Sequence):
         # to initialize transformations and shuffle indices
         self.on_epoch_end()
 
+        
+        kind = "train"
+        if _validation_data is not None:
+            kind = "validation"
+        elif _test_data is not None:
+            kind = "test"
+            
         print("get %d classes for %d files for %s" % (
             self.classes_count,
             self.files_count,
-            'train' if _validation_data is None else 'validation'))
+            kind))
 
     def get_validation_generator(self):
         """ Return the validation generator if you've provided split factor """
