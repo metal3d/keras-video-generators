@@ -252,7 +252,7 @@ class VideoFrameGenerator(Sequence):
 
             if video not in self.__frame_cache:
                 cap = cv.VideoCapture(video)
-                total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                total_frames = cap.get(cv.CAP_PROP_FRAME_COUNT)
                 frame_step = floor(total_frames/nbframe/2)
                 frames = []
                 frame_i = 0
