@@ -130,7 +130,8 @@ class SlidingFrameGenerator(VideoFrameGenerator):
     def __getitem__(self, idx):
         classes = self.classes
         shape = self.target_shape
-
+        nbframe = self.nbframe
+        
         labels = []
         images = []
         
@@ -145,7 +146,6 @@ class SlidingFrameGenerator(VideoFrameGenerator):
 
             vid = self.vid_info[i]
             video = vid.get('name')
-            nbframe = self.nbframe
             classname = video.split(os.sep)[-2]
 
             # create a label array and set 1 to the right column
