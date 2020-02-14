@@ -12,7 +12,8 @@ import numpy as np
 import cv2 as cv
 from keras.utils.data_utils import Sequence
 from keras.preprocessing.image import ImageDataGenerator, img_to_array
-
+import logging
+log = logging.getLogger()
 
 class VideoFrameGenerator(Sequence):
     """
@@ -30,7 +31,7 @@ class VideoFrameGenerator(Sequence):
     - nb_channel: int, 1 or 3, to get grayscaled or RGB images
     - glob_pattern: string, directory path with '{classname}' inside that \
         will be replaced by one of the class list
-    - _validation_data: already filled list of data, **do not touch !**
+    
     You may use the "classes" property to retrieve the class list afterward.
     The generator has that properties initialized:
     - classes_count: number of classes that the generator manages
@@ -55,9 +56,17 @@ class VideoFrameGenerator(Sequence):
             split_val: float = None,
             nb_channel: int = 3,
             glob_pattern: str = './videos/{classname}/*.avi',
-            _validation_data: list = None,
-            _test_data: list = None):
-
+            *args,
+            **kwargs):
+        
+        # deprecation
+        if 'split' in kwargs:
+            log.warn("Warning, `split` argument is replaced by `split_val`, "
+                  "please condider to change your source code."
+                  "The `split` argument will be removed in future releases.")
+            split_val = float(kwargs.get('split'))
+        
+        
         # should be only RGB or Grayscale
         assert nb_channel in (1, 3)
 
@@ -66,7 +75,7 @@ class VideoFrameGenerator(Sequence):
 
         # shape size should be 2
         assert len(target_shape) == 2
-
+        
         # split factor should be a propoer value
         if split_val is not None:
             assert 0.0 < split_val < 1.0
@@ -74,6 +83,11 @@ class VideoFrameGenerator(Sequence):
         if split_test is not None:
             assert 0.0 < split_test < 1.0
 
+        
+        # then we don't need None anymore
+        split_val = split_val if split_val is not None else 0.0
+        split_test = split_test if split_test is not None else 0.0
+            
         # be sure that classes are well ordered
         classes.sort()
 
@@ -93,6 +107,8 @@ class VideoFrameGenerator(Sequence):
         self.validation = []
         self.test = []
 
+        _validation_data = kwargs.get('_validation_data', None)
+        _test_data = kwargs.get('_test_data', None)
         if _validation_data is not None:
             # we only need to set files here
             self.files = _validation_data
@@ -162,7 +178,7 @@ class VideoFrameGenerator(Sequence):
         elif _test_data is not None:
             kind = "test"
             
-        print("get %d classes for %d files for %s" % (
+        print("Training data: %d classes for %d files for %s" % (
             self.classes_count,
             self.files_count,
             kind))
