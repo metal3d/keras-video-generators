@@ -118,7 +118,7 @@ class VideoFrameGenerator(Sequence):
             self.files = _test_data
             
         else:
-            if split_val is not None or split_test is not None:
+            if split_val > 0 or split_test > 0:
                 for cls in classes:
                     files = glob.glob(glob_pattern.format(classname=cls))
                     nbval = 0
