@@ -178,7 +178,7 @@ class VideoFrameGenerator(Sequence):
         elif _test_data is not None:
             kind = "test"
             
-        print("Training data: %d classes for %d files for %s" % (
+        print("Total data: %d classes for %d files for %s" % (
             self.classes_count,
             self.files_count,
             kind))
