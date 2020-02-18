@@ -14,7 +14,19 @@ from math import floor
 from keras.utils.data_utils import Sequence
 from keras.preprocessing.image import ImageDataGenerator, img_to_array
 import logging
+import re
 log = logging.getLogger()
+
+
+RE_PATH_REPLACE = {
+    '.': r'\.',
+    '*': r'.*',
+    '?': r'\?',
+    '!': r'\!',
+    '+': r'\+',
+    os.path.sep*2: os.path.sep,
+    '{classname}': r'(.*?)'
+}
 
 class VideoFrameGenerator(Sequence):
     """
@@ -180,6 +192,7 @@ class VideoFrameGenerator(Sequence):
             kind = "test"
             
 
+        self.glob_pattern = glob_pattern
         self._current = 0
 
         print("Total data: %d classes for %d files for %s" % (
@@ -208,6 +221,7 @@ class VideoFrameGenerator(Sequence):
             batch_size=self.batch_size,
             shuffle=self.shuffle,
             rescale=self.rescale,
+            glob_pattern = self.glob_pattern,
             _validation_data=self.validation)
 
     def get_test_generator(self):
@@ -220,6 +234,7 @@ class VideoFrameGenerator(Sequence):
             batch_size=self.batch_size,
             shuffle=self.shuffle,
             rescale=self.rescale,
+            glob_pattern = self.glob_pattern,
             _test_data=self.test)
 
     def on_epoch_end(self):
@@ -255,9 +270,14 @@ class VideoFrameGenerator(Sequence):
             if self.transformation is not None:
                 transformation = self._random_trans[i]
 
-            # video = random.choice(files)
             video = self.files[i]
-            classname = video.split(os.sep)[-2]
+
+            # we must find the {classname} pattern in the glob_pattern variable
+            # TODO: that's not a good solution, but for the moment...
+            g = self.glob_pattern
+            for s, d in RE_PATH_REPLACE.items():
+                g = g.replace(s, d)
+            classname = re.findall(g, video)[0]
 
             # create a label array and set 1 to the right column
             label = np.zeros(len(classes))
