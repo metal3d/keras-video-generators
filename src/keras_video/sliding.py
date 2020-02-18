@@ -125,7 +125,22 @@ class SlidingFrameGenerator(VideoFrameGenerator):
             batch_size=self.batch_size,
             shuffle=self.shuffle,
             rescale=self.rescale,
+            glob_pattern = self.glob_pattern,
             _validation_data=self.validation)
+    
+    def get_test_generator(self):
+        """ Return the validation generator if you've provided split factor """
+        return self.__class__(
+            sequence_time=self.sequence_time,
+            nb_frames=self.nbframe,
+            nb_channel=self.nb_channel,
+            target_shape=self.target_shape,
+            classes=self.classes,
+            batch_size=self.batch_size,
+            shuffle=self.shuffle,
+            rescale=self.rescale,
+            glob_pattern = self.glob_pattern,
+            _test_data=self.test)
 
     def __getitem__(self, idx):
         classes = self.classes
