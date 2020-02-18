@@ -179,10 +179,24 @@ class VideoFrameGenerator(Sequence):
         elif _test_data is not None:
             kind = "test"
             
+
+        self._current = 0
+
         print("Total data: %d classes for %d files for %s" % (
             self.classes_count,
             self.files_count,
             kind))
+
+
+    def next(self):
+        """ Return next element"""
+        elem = self[self._current]
+        self._current += 1
+        if self._current == len(self):
+            self._current = 0
+            self.on_epoch_end()
+
+        return elem
 
     def get_validation_generator(self):
         """ Return the validation generator if you've provided split factor """
