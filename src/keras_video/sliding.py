@@ -146,7 +146,7 @@ class SlidingFrameGenerator(VideoFrameGenerator):
 
             vid = self.vid_info[i]
             video = vid.get('name')
-            classname = video.split(os.sep)[-2]
+            classname = self._get_classname(video)
 
             # create a label array and set 1 to the right column
             label = np.zeros(len(classes))

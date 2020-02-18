@@ -271,13 +271,7 @@ class VideoFrameGenerator(Sequence):
                 transformation = self._random_trans[i]
 
             video = self.files[i]
-
-            # we must find the {classname} pattern in the glob_pattern variable
-            # TODO: that's not a good solution, but for the moment...
-            g = self.glob_pattern
-            for s, d in RE_PATH_REPLACE.items():
-                g = g.replace(s, d)
-            classname = re.findall(g, video)[0]
+            classname = self._get_classname(video)
 
             # create a label array and set 1 to the right column
             label = np.zeros(len(classes))
@@ -335,3 +329,12 @@ class VideoFrameGenerator(Sequence):
             labels.append(label)
 
         return np.array(images), np.array(labels)
+
+    def _get_classname(self, video):
+        # we must find the {classname} pattern in the glob_pattern variable
+        # TODO: that's not a good solution, but for the moment...
+        g = self.glob_pattern
+        for s, d in RE_PATH_REPLACE.items():
+            g = g.replace(s, d)
+        classname = re.findall(g, video)[0]
+        return classname
