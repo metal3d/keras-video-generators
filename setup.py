@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='keras-video-generators',
-    version='1.0.5',
+    version='1.0.7',
     description='Keras sequence generators for video data',
     long_description=long_description,
     long_description_content_type="text/markdown",
