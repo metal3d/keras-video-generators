@@ -194,12 +194,36 @@ class VideoFrameGenerator(Sequence):
 
         self.glob_pattern = glob_pattern
         self._current = 0
-
+        self._framecounters = {}
         print("Total data: %d classes for %d files for %s" % (
             self.classes_count,
             self.files_count,
             kind))
 
+    def count_frames(self, cap, name):
+        """ Count number of frame for video if it's not possible with headers """
+        if name in self._framecounters:
+            return self._framecounters[name]
+
+        total = cap.get(cv.CAP_PROP_FRAME_COUNT)
+
+        if total < 0:
+            # headers not ok
+            total = 0
+            # TODO: we're unable to use CAP_PROP_POS_FRAME here
+            # so we open a new capture to not change the pointer position of "cap"
+            c = cv.VideoCapture(name)
+            while True:
+                grabbed, frame = c.read()
+                if not grabbed:
+                    # rewind and stop
+                    break
+                total +=1
+
+        # keep the result
+        self._framecounters[name] = total
+
+        return total
 
     def next(self):
         """ Return next element"""
@@ -280,7 +304,7 @@ class VideoFrameGenerator(Sequence):
 
             if video not in self.__frame_cache:
                 cap = cv.VideoCapture(video)
-                total_frames = cap.get(cv.CAP_PROP_FRAME_COUNT)
+                total_frames = self.count_frames(cap, video)
                 frame_step = floor(total_frames/nbframe/2)
                 frames = []
                 frame_i = 0

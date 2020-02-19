@@ -170,7 +170,7 @@ class SlidingFrameGenerator(VideoFrameGenerator):
 
             if vid['id'] not in self.__frame_cache:
                 cap = cv.VideoCapture(video)
-                total_frames = cap.get(cv.CAP_PROP_FRAME_COUNT)
+                total_frames = self.count_frames(cap, video)
                 frame_step = floor(total_frames/nbframe/2)
                 frames = []
                 frame_i = 0
