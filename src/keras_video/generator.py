@@ -306,6 +306,9 @@ class VideoFrameGenerator(Sequence):
                 cap = cv.VideoCapture(video)
                 total_frames = self.count_frames(cap, video)
                 frame_step = floor(total_frames/nbframe/2)
+                # TODO: fix that, a tiny video can have a frame_step that is
+                # under 1
+                frame_step = max(1, frame_step)
                 frames = []
                 frame_i = 0
                 while True:
