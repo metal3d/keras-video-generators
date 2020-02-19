@@ -303,46 +303,7 @@ class VideoFrameGenerator(Sequence):
             label[col] = 1.
 
             if video not in self.__frame_cache:
-                cap = cv.VideoCapture(video)
-                total_frames = self.count_frames(cap, video)
-                frame_step = floor(total_frames/nbframe/2)
-                # TODO: fix that, a tiny video can have a frame_step that is
-                # under 1
-                frame_step = max(1, frame_step)
-                frames = []
-                frame_i = 0
-                while True:
-                    
-                    grabbed, frame = cap.read()
-                    if not grabbed:
-                        # end of video
-                        break
-                    
-                    frame_i += 1
-                    if frame_i % frame_step == 0:
-                        
-                        # resize
-                        frame = cv.resize(frame, shape)
-
-                        # use RGB or Grayscale ?
-                        if self.nb_channel == 3:
-                            frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-                        else:
-                            frame = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
-
-                        # to np
-                        frame = img_to_array(frame) * self.rescale
-
-                        # keep frame
-                        frames.append(frame)
-                        
-                        # Break once the appropriate number of frames is collected
-                        if len(frames) == nbframe:
-                            break
-
-                # add to frame cache to not read from disk later
-                if self.use_frame_cache:
-                    self.__frame_cache[video] = frames
+                frames = self._get_frames(video, nbframe, shape)
             else:
                 frames = self.__frame_cache[video]
 
@@ -365,3 +326,41 @@ class VideoFrameGenerator(Sequence):
             g = g.replace(s, d)
         classname = re.findall(g, video)[0]
         return classname
+
+    def _get_frames(self, video, nbframe, shape):
+        cap = cv.VideoCapture(video)
+        total_frames = self.count_frames(cap, video)
+        frame_step = floor(total_frames/nbframe/2)
+        # TODO: fix that, a tiny video can have a frame_step that is
+        # under 1
+        frame_step = max(1, frame_step)
+        frames = []
+        frame_i = 0
+        
+        while True:
+            grabbed, frame = cap.read()
+            if not grabbed:
+                cap.release()
+                break
+            
+            frame_i += 1
+            if frame_i % frame_step == 0:
+                # resize
+                frame = cv.resize(frame, shape)
+
+                # use RGB or Grayscale ?
+                if self.nb_channel == 3:
+                    frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+                else:
+                    frame = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
+
+                # to np
+                frame = img_to_array(frame) * self.rescale
+
+                # keep frame
+                frames.append(frame)
+
+                if len(frames) == nbframe:
+                    break
+
+        return frames

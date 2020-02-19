@@ -13,7 +13,6 @@ import os
 import numpy as np
 import cv2 as cv
 from math import floor
-import keras.preprocessing.image
 from .generator import VideoFrameGenerator
 
 
@@ -169,43 +168,7 @@ class SlidingFrameGenerator(VideoFrameGenerator):
             label[col] = 1.
 
             if vid['id'] not in self.__frame_cache:
-                cap = cv.VideoCapture(video)
-                total_frames = self.count_frames(cap, video)
-                frame_step = floor(total_frames/nbframe/2)
-                frames = []
-                frame_i = 0
-                
-                while True:
-                    grabbed, frame = cap.read()
-                    if not grabbed:
-                        cap.release()
-                        break
-                    
-                    frame_i += 1
-                    if frame_i % frame_step == 0:
-                        # resize
-                        frame = cv.resize(frame, shape)
-
-                        # use RGB or Grayscale ?
-                        if self.nb_channel == 3:
-                            frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-                        else:
-                            frame = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
-
-                        # to np
-                        frame = keras.preprocessing.image.img_to_array(
-                            frame) * self.rescale
-
-                        # keep frame
-                        frames.append(frame)
-
-                        if len(frames) == nbframe:
-                            break
-
-                # add to frame cache to not read from disk later
-                if self.use_frame_cache:
-                    self.__frame_cache[vid['id']] = frames
-
+                frames = self._get_frames(video, nbframe, shape)
             else:
                 frames = self.__frame_cache[vid['id']]
 
