@@ -95,11 +95,6 @@ class SlidingFrameGenerator(VideoFrameGenerator):
 
     def on_epoch_end(self):
         # prepare transformation to avoid __getitem__ to reinitialize them
-        try:
-            self.vid_info
-        except Exception:
-            return
-
         if self.transformation is not None:
             self._random_trans = []
             for _ in range(len(self.vid_info)):
@@ -124,9 +119,9 @@ class SlidingFrameGenerator(VideoFrameGenerator):
             batch_size=self.batch_size,
             shuffle=self.shuffle,
             rescale=self.rescale,
-            glob_pattern = self.glob_pattern,
+            glob_pattern=self.glob_pattern,
             _validation_data=self.validation)
-    
+
     def get_test_generator(self):
         """ Return the validation generator if you've provided split factor """
         return self.__class__(
@@ -138,17 +133,17 @@ class SlidingFrameGenerator(VideoFrameGenerator):
             batch_size=self.batch_size,
             shuffle=self.shuffle,
             rescale=self.rescale,
-            glob_pattern = self.glob_pattern,
+            glob_pattern=self.glob_pattern,
             _test_data=self.test)
 
     def __getitem__(self, idx):
         classes = self.classes
         shape = self.target_shape
         nbframe = self.nbframe
-        
+
         labels = []
         images = []
-        
+
         indexes = self.indexes[idx*self.batch_size:(idx+1)*self.batch_size]
 
         transformation = None

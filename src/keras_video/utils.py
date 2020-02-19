@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 
 def show_sample(g, index=0, random=False, row_width=22, row_height=5):
     """ Displays a batch using matplotlib.
-    
+
     params:
-    
+
     - g: keras video generator
     - index: integer index of batch to see (overriden if random is True)
     - random: boolean, if True, take a random batch from the generator
@@ -25,12 +25,12 @@ def show_sample(g, index=0, random=False, row_width=22, row_height=5):
         sample = rnd.randint(0, total)
     else:
         sample = index
-        
+
     assert index < len(g)
     sample = g[sample]
     sequences = sample[0]
     labels = sample[1]
-    
+
     rows = len(sequences)
     index = 1
     plt.figure(figsize=(row_width, row_height*rows))

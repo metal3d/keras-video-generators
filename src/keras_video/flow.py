@@ -155,7 +155,7 @@ class OpticalFlowGenerator(VideoFrameGenerator):
             batch_size=self.batch_size,
             shuffle=self.shuffle,
             rescale=self.rescale,
-            glob_pattern = self.glob_pattern,
+            glob_pattern=self.glob_pattern,
             _validation_data=self.validation)
 
     def get_test_generator(self):
@@ -169,9 +169,9 @@ class OpticalFlowGenerator(VideoFrameGenerator):
             batch_size=self.batch_size,
             shuffle=self.shuffle,
             rescale=self.rescale,
-            glob_pattern = self.glob_pattern,
+            glob_pattern=self.glob_pattern,
             _test_data=self.test)
-    
+
     def __getitem__(self, idx):
         batch = super().__getitem__(idx)
         images = []

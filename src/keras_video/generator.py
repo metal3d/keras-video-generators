@@ -28,6 +28,7 @@ RE_PATH_REPLACE = {
     '{classname}': r'(.*?)'
 }
 
+
 class VideoFrameGenerator(Sequence):
     """
     Create a generator that return batches of frames from video
@@ -44,7 +45,7 @@ class VideoFrameGenerator(Sequence):
     - nb_channel: int, 1 or 3, to get grayscaled or RGB images
     - glob_pattern: string, directory path with '{classname}' inside that \
         will be replaced by one of the class list
-    
+
     You may use the "classes" property to retrieve the class list afterward.
     The generator has that properties initialized:
     - classes_count: number of classes that the generator manages
@@ -71,15 +72,14 @@ class VideoFrameGenerator(Sequence):
             glob_pattern: str = './videos/{classname}/*.avi',
             *args,
             **kwargs):
-        
+
         # deprecation
         if 'split' in kwargs:
             log.warn("Warning, `split` argument is replaced by `split_val`, "
-                  "please condider to change your source code."
-                  "The `split` argument will be removed in future releases.")
+                     "please condider to change your source code."
+                     "The `split` argument will be removed in future releases.")
             split_val = float(kwargs.get('split'))
-        
-        
+
         # should be only RGB or Grayscale
         assert nb_channel in (1, 3)
 
@@ -88,7 +88,7 @@ class VideoFrameGenerator(Sequence):
 
         # shape size should be 2
         assert len(target_shape) == 2
-        
+
         # split factor should be a propoer value
         if split_val is not None:
             assert 0.0 < split_val < 1.0
@@ -96,11 +96,10 @@ class VideoFrameGenerator(Sequence):
         if split_test is not None:
             assert 0.0 < split_test < 1.0
 
-        
         # then we don't need None anymore
         split_val = split_val if split_val is not None else 0.0
         split_test = split_test if split_test is not None else 0.0
-            
+
         # be sure that classes are well ordered
         classes.sort()
 
@@ -125,11 +124,11 @@ class VideoFrameGenerator(Sequence):
         if _validation_data is not None:
             # we only need to set files here
             self.files = _validation_data
-        
-        elif _test_data is not None :
+
+        elif _test_data is not None:
             # we only need to set files here
             self.files = _test_data
-            
+
         else:
             if split_val > 0 or split_test > 0:
                 for cls in classes:
@@ -147,30 +146,33 @@ class VideoFrameGenerator(Sequence):
                     if 0.0 < split_val < 1.0:
                         nbval = int(split_val * len(files))
                         nbtrain = len(files) - nbval
-                    
-                        # get some sample for validation_data
-                        val = np.random.permutation(indexes)[:nbval]   
 
-                         # remove validation from train    
-                        indexes = np.array([i for i in indexes if i not in val]) 
+                        # get some sample for validation_data
+                        val = np.random.permutation(indexes)[:nbval]
+
+                        # remove validation from train
+                        indexes = np.array(
+                            [i for i in indexes if i not in val])
                         self.validation += [files[i] for i in val]
                         info.append("validation count: %d" % nbval)
 
                     if 0.0 < split_test < 1.0:
                         nbtest = int(split_test * nbtrain)
                         nbtrain = len(files) - nbval - nbtest
-                        
+
                         # get some sample for test_data
                         val_test = np.random.permutation(indexes)[:nbtest]
-                        
+
                         # remove test from train
-                        indexes = np.array([i for i in indexes if i not in val_test])
-                        self.test +=[files [i] for i in val_test]
+                        indexes = np.array(
+                            [i for i in indexes if i not in val_test])
+                        self.test += [files[i] for i in val_test]
                         info.append("test count: %d" % nbtest)
-                    
+
                     # and now, make the file list
                     self.files += [files[i] for i in indexes]
-                    print("class %s, %s, train count: %d" % (cls, ", ".join(info), nbtrain))
+                    print("class %s, %s, train count: %d" %
+                          (cls, ", ".join(info), nbtrain))
 
             else:
                 for cls in classes:
@@ -184,13 +186,11 @@ class VideoFrameGenerator(Sequence):
         # to initialize transformations and shuffle indices
         self.on_epoch_end()
 
-        
         kind = "train"
         if _validation_data is not None:
             kind = "validation"
         elif _test_data is not None:
             kind = "test"
-            
 
         self.glob_pattern = glob_pattern
         self._current = 0
@@ -218,7 +218,7 @@ class VideoFrameGenerator(Sequence):
                 if not grabbed:
                     # rewind and stop
                     break
-                total +=1
+                total += 1
 
         # keep the result
         self._framecounters[name] = total
@@ -245,7 +245,7 @@ class VideoFrameGenerator(Sequence):
             batch_size=self.batch_size,
             shuffle=self.shuffle,
             rescale=self.rescale,
-            glob_pattern = self.glob_pattern,
+            glob_pattern=self.glob_pattern,
             _validation_data=self.validation)
 
     def get_test_generator(self):
@@ -258,7 +258,7 @@ class VideoFrameGenerator(Sequence):
             batch_size=self.batch_size,
             shuffle=self.shuffle,
             rescale=self.rescale,
-            glob_pattern = self.glob_pattern,
+            glob_pattern=self.glob_pattern,
             _test_data=self.test)
 
     def on_epoch_end(self):
@@ -266,7 +266,7 @@ class VideoFrameGenerator(Sequence):
 
         if self.transformation is not None:
             self._random_trans = []
-            for i in range(self.files_count):
+            for _ in range(self.files_count):
                 self._random_trans.append(
                     self.transformation.get_random_transform(self.target_shape)
                 )
@@ -321,10 +321,10 @@ class VideoFrameGenerator(Sequence):
     def _get_classname(self, video):
         # we must find the {classname} pattern in the glob_pattern variable
         # TODO: that's not a good solution, but for the moment...
-        g = self.glob_pattern
-        for s, d in RE_PATH_REPLACE.items():
-            g = g.replace(s, d)
-        classname = re.findall(g, video)[0]
+        pattern = self.glob_pattern
+        for src, dest in RE_PATH_REPLACE.items():
+            pattern = pattern.replace(src, dest)
+        classname = re.findall(pattern, video)[0]
         return classname
 
     def _get_frames(self, video, nbframe, shape):
@@ -336,13 +336,13 @@ class VideoFrameGenerator(Sequence):
         frame_step = max(1, frame_step)
         frames = []
         frame_i = 0
-        
+
         while True:
             grabbed, frame = cap.read()
             if not grabbed:
                 cap.release()
                 break
-            
+
             frame_i += 1
             if frame_i % frame_step == 0:
                 # resize
