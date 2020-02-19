@@ -28,7 +28,7 @@ sequence has got 5 frames sized to ``(224, 224)`` in RGB.
 
 """
 
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 
 from . import flow
 from . import generator
