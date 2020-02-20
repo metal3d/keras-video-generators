@@ -64,10 +64,11 @@ class SlidingFrameGenerator(VideoFrameGenerator):
 
     def __init_length(self):
         count = 0
+        print("Checking files to find possible sequences, please wait...")
         for filename in self.files:
             cap = cv.VideoCapture(filename)
             fps = cap.get(cv.CAP_PROP_FPS)
-            frame_count = cap.get(cv.CAP_PROP_FRAME_COUNT)
+            frame_count = self.count_frames(cap, filename)
             cap.release()
 
             if self.sequence_time is not None:
