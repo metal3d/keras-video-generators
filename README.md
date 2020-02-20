@@ -4,10 +4,14 @@
 
 This package proposes some classes to work with Keras (included in TensorFlow) that generates batches of frames from video files.
 
-It is useful to work with Time Distributed Layer with Video input (frames). The use GRU or LSTM. See articles:
+It is useful to work with Time Distributed Layer with Video input (frames). Then you may use GRU or LSTM. 
+See articles:
 
 - [The basics of Video frame as input](https://medium.com/smileinnovation/how-to-work-with-time-distributed-data-in-a-neural-network-b8b39aa4ce00)
 - [Usage of these generators here](https://medium.com/smileinnovation/training-neural-network-with-image-sequence-an-example-with-video-as-input-c3407f7a0b0f)
+
+Example can be seen in [integrated note book](./Example of usage.ipynb).
+To see the example in a proper viewer, [you can use that URL](https://nbviewer.jupyter.org/github/metal3d/keras-video-generators/blob/master/Example%20of%20usage.ipynb).
 
 
 Requirements are:
