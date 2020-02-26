@@ -19,12 +19,13 @@ log = logging.getLogger()
 
 
 RE_PATH_REPLACE = {
+    os.path.sep*2: os.path.sep,
+    '\\' : '\\\\',
     '.': r'\.',
     '*': r'.*',
     '?': r'\?',
     '!': r'\!',
     '+': r'\+',
-    os.path.sep*2: os.path.sep,
     '{classname}': r'(.*?)'
 }
 
