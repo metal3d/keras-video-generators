@@ -18,18 +18,6 @@ import re
 log = logging.getLogger()
 
 
-RE_PATH_REPLACE = {
-    os.path.sep*2: os.path.sep,
-    '\\' : '\\\\',
-    '.': r'\.',
-    '*': r'.*',
-    '?': r'\?',
-    '!': r'\!',
-    '+': r'\+',
-    '{classname}': r'(.*?)'
-}
-
-
 class VideoFrameGenerator(Sequence):
     """
     Create a generator that return batches of frames from video
@@ -78,7 +66,8 @@ class VideoFrameGenerator(Sequence):
         if 'split' in kwargs:
             log.warn("Warning, `split` argument is replaced by `split_val`, "
                      "please condider to change your source code."
-                     "The `split` argument will be removed in future releases.")
+                     "The `split` argument will be removed "
+                     "in future releases.")
             split_val = float(kwargs.get('split'))
 
         # should be only RGB or Grayscale
@@ -122,6 +111,9 @@ class VideoFrameGenerator(Sequence):
 
         _validation_data = kwargs.get('_validation_data', None)
         _test_data = kwargs.get('_test_data', None)
+
+        self.glob_pattern = glob_pattern
+
         if _validation_data is not None:
             # we only need to set files here
             self.files = _validation_data
@@ -193,7 +185,6 @@ class VideoFrameGenerator(Sequence):
         elif _test_data is not None:
             kind = "test"
 
-        self.glob_pattern = glob_pattern
         self._current = 0
         self._framecounters = {}
         print("Total data: %d classes for %d files for %s" % (
@@ -202,7 +193,8 @@ class VideoFrameGenerator(Sequence):
             kind))
 
     def count_frames(self, cap, name):
-        """ Count number of frame for video if it's not possible with headers """
+        """ Count number of frame for video
+        if it's not possible with headers """
         if name in self._framecounters:
             return self._framecounters[name]
 
@@ -212,7 +204,8 @@ class VideoFrameGenerator(Sequence):
             # headers not ok
             total = 0
             # TODO: we're unable to use CAP_PROP_POS_FRAME here
-            # so we open a new capture to not change the pointer position of "cap"
+            # so we open a new capture to not change the
+            # pointer position of "cap"
             c = cv.VideoCapture(name)
             while True:
                 grabbed, frame = c.read()
@@ -319,12 +312,23 @@ class VideoFrameGenerator(Sequence):
 
         return np.array(images), np.array(labels)
 
-    def _get_classname(self, video):
-        # we must find the {classname} pattern in the glob_pattern variable
-        # TODO: that's not a good solution, but for the moment...
-        pattern = self.glob_pattern
-        for src, dest in RE_PATH_REPLACE.items():
-            pattern = pattern.replace(src, dest)
+    def _get_classname(self, video: str) -> str:
+        """ Find classname from video filename following the pattern """
+
+        # work with real path
+        video = os.path.realpath(video)
+        pattern = os.path.realpath(self.glob_pattern)
+
+        # remove special regexp chars
+        pattern = re.escape(pattern)
+
+        # get back "*" to make it ".*" in regexp
+        pattern = pattern.replace('\\*', '.*')
+
+        # use {classname} as a capture
+        pattern = pattern.replace('\\{classname\\}', '(.*?)')
+
+        # and find all occurence
         classname = re.findall(pattern, video)[0]
         return classname
 
