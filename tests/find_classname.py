@@ -1,5 +1,6 @@
 import keras_video
 import unittest
+import os
 import sys
 sys.path.insert(0, './src')
 
@@ -22,11 +23,14 @@ class TestFindClassname(unittest.TestCase):
 
     def test_class_for_windows(self):
         """ Work with windows path """
-        import os
+        current = os.name
         os.name = 'windows'
+
         g = keras_video.VideoFrameGenerator(
             classes=['a'], glob_pattern='foo\\bar\\{classname}_*.avi')
         cl = g._get_classname('foo\\bar\\baz_0001.avi')
+
+        os.name = current
         assert cl == 'baz'
 
     def test_class_with_point(self):
