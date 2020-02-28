@@ -51,7 +51,7 @@ The package contains 3 generators that inherits `Sequence` interface. So they ma
 
 Each of these generators accepts parameters:
 
-- `glob_pattern` that must contain `{classname}`, e.g. './videos/{classname}/*.png' - the "classname" in string is used to detect classes
+- `glob_pattern` that must contain `{classname}`, e.g. './videos/{classname}/*.avi' - the "classname" in string is used to detect classes
 - `nb_frame` that is the number of frame in the sequence
 - `batch_size`
 - `transformation` that can be `None` or or ImageDataGenerator to make data augmentation
@@ -59,7 +59,27 @@ Each of these generators accepts parameters:
 - and many more, see class documentation
 
 
-# Work in progress
+# Changelog
 
-- [ ] Complete documentation
-- [ ] use Optical Flow on SlidingFrameGenerator
+
+## v1.0.9
+- fix frame counter in SlidingFrameGenerator
+
+## v1.0.8
+- fix tiny video frame count
+- refactorisation
+- pep8
+- fix problems for video without headers
+
+## v1.0.7
+- fix name check in classes to get them from filename
+- add `split_test` and `split_val`
+
+## v1.0.5
+
+- fix package generation
+
+## v1.0.4 
+
+- fix assertion
+
