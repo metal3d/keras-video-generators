@@ -11,11 +11,19 @@ import glob
 import numpy as np
 import cv2 as cv
 from math import floor
-from keras.utils.data_utils import Sequence
-from keras.preprocessing.image import ImageDataGenerator, img_to_array
 import logging
 import re
 log = logging.getLogger()
+
+# Try to import keras resources from tensorflow
+try:
+    from tensorflow.keras.utils.data_utils import Sequence
+    from tensorflow.keras.preprocessing.image import \
+        ImageDataGenerator, img_to_array
+except ModuleNotFoundError:
+    from keras.utils.data_utils import Sequence
+    from keras.preprocessing.image import \
+        ImageDataGenerator, img_to_array
 
 
 class VideoFrameGenerator(Sequence):

@@ -18,9 +18,12 @@ Several methods are defined:
 
 import numpy as np
 import cv2 as cv
-from keras.utils.data_utils import Sequence
-import keras.preprocessing.image
 from .generator import VideoFrameGenerator
+
+try:
+    import tensorflow.keras.preprocessing.image as kimage
+except ModuleNotFoundError:
+    import keras.preprocessing.image as kimage
 
 METHOD_OPTICAL_FLOW = 1
 METHOD_FLOW_MASK = 2
@@ -192,7 +195,7 @@ class OpticalFlowGenerator(VideoFrameGenerator):
                 elif self.method == METHOD_DIFF_MASK:
                     image = self.diff_mask((im1, im2))
 
-                image = keras.preprocessing.image.img_to_array(image)
+                image = kimage.img_to_array(image)
                 frames.append(image)
 
             images.append(frames)
