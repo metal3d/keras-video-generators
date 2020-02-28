@@ -1,4 +1,4 @@
-[![PyPI version](https://badge.fury.io/py/keras-video-generators.svg)](https://pypi.org/project/keras-video-generators/)
+[![PyPI version](https://badge.fury.io/py/keras-video-generators.svg)](https://pypi.org/project/keras-video-generators/) [![Build Status](https://travis-ci.org/metal3d/keras-video-generators.svg?branch=master)](https://travis-ci.org/metal3d/keras-video-generators)
 
 # Keras Sequence Video generators
 
