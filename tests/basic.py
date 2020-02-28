@@ -27,6 +27,8 @@ class TestDiscovery(unittest.TestCase):
         shutil.rmtree(self.testdir)
 
     def test_find_classes(self):
+        """ Check classe auto discovery """
+
         g = keras_video.VideoFrameGenerator(
             glob_pattern=os.path.join(self.testdir, '{classname}_*.avi'))
         assert 'A' in g.classes
