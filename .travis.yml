@@ -1,6 +1,7 @@
 language: python
 install:
-  - pip install -r nose opencv-python keras tensorflow
+  - python setup.py install
+  - pip install nose
 # command to run tests
 script:
   - nosetests -v tests/* 
