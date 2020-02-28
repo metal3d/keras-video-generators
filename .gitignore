@@ -91,6 +91,11 @@ ENV/
 env.bak/
 venv.bak/
 
+# personal
+_test
+out.zip
+out/
+
 # Spyder project settings
 .spyderproject
 .spyproject
