@@ -87,7 +87,13 @@ class VideoFrameGenerator(Sequence):
             classes = self._discover_classes()
 
         # we should have classes
-        assert len(classes) != 0
+        if len(classes) == 0:
+            log.warn("You didn't provide classes list or "
+                     "we were not able to discover them from "
+                     "your pattern.\n"
+                     "Please check if the path is OK, and if the glob "
+                     "pattern is correct.\n"
+                     "See https://docs.python.org/3/library/glob.html")
 
         # shape size should be 2
         assert len(target_shape) == 2
