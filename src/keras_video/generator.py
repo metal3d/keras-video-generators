@@ -57,7 +57,7 @@ class VideoFrameGenerator(Sequence):
             self,
             rescale=1/255.,
             nb_frames: int = 5,
-            classes: list = [],
+            classes: list = None,
             batch_size: int = 16,
             use_frame_cache: bool = False,
             target_shape: tuple = (224, 224),
@@ -78,8 +78,13 @@ class VideoFrameGenerator(Sequence):
                      "in future releases.")
             split_val = float(kwargs.get('split'))
 
+        self.glob_pattern = glob_pattern
+
         # should be only RGB or Grayscale
         assert nb_channel in (1, 3)
+
+        if classes is None:
+            classes = self._discover_classes()
 
         # we should have classes
         assert len(classes) != 0
@@ -119,8 +124,6 @@ class VideoFrameGenerator(Sequence):
 
         _validation_data = kwargs.get('_validation_data', None)
         _test_data = kwargs.get('_test_data', None)
-
-        self.glob_pattern = glob_pattern
 
         if _validation_data is not None:
             # we only need to set files here
@@ -226,6 +229,21 @@ class VideoFrameGenerator(Sequence):
         self._framecounters[name] = total
 
         return total
+
+    def _discover_classes(self):
+        pattern = os.path.realpath(self.glob_pattern)
+        pattern = re.escape(pattern)
+        pattern = pattern.replace('\\{classname\\}', '(.*?)')
+        pattern = pattern.replace('\\*', '.*')
+
+        files = glob.glob(self.glob_pattern.replace('{classname}', '*'))
+        classes = set()
+        for f in files:
+            f = os.path.realpath(f)
+            cl = re.findall(pattern, f)[0]
+            classes.add(cl)
+
+        return list(classes)
 
     def next(self):
         """ Return next element"""
