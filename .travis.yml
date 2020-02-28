@@ -1,7 +1,7 @@
 language: python
 install:
   - python setup.py install
-  - pip install nose
+  - pip install nose tensorflow
 # command to run tests
 script:
   - nosetests -v tests/* 
