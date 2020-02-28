@@ -95,6 +95,7 @@ venv.bak/
 _test
 out.zip
 out/
+coverage/
 
 # Spyder project settings
 .spyderproject
