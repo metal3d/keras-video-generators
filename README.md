@@ -62,6 +62,12 @@ Each of these generators accepts parameters:
 # Changelog
 
 
+## v1.0.10
+- fix Windows problems with path using backslashes
+- add auto discovery for classes if "None" is sent
+- add travis tests
+
+
 ## v1.0.9
 - fix frame counter in SlidingFrameGenerator
 
