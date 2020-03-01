@@ -209,15 +209,15 @@ class VideoFrameGenerator(Sequence):
             self.files_count,
             kind))
 
-    def count_frames(self, cap, name):
+    def count_frames(self, cap, name, force=False):
         """ Count number of frame for video
         if it's not possible with headers """
-        if name in self._framecounters:
+        if not force and name in self._framecounters:
             return self._framecounters[name]
 
         total = cap.get(cv.CAP_PROP_FRAME_COUNT)
 
-        if total < 0:
+        if force or total < 0:
             # headers not ok
             total = 0
             # TODO: we're unable to use CAP_PROP_POS_FRAME here
@@ -330,6 +330,9 @@ class VideoFrameGenerator(Sequence):
 
             if video not in self.__frame_cache:
                 frames = self._get_frames(video, nbframe, shape)
+                if frames is None:
+                    # avoid failure, nevermind that video...
+                    continue
             else:
                 frames = self.__frame_cache[video]
 
@@ -364,9 +367,9 @@ class VideoFrameGenerator(Sequence):
         classname = re.findall(pattern, video)[0]
         return classname
 
-    def _get_frames(self, video, nbframe, shape):
+    def _get_frames(self, video, nbframe, shape, force=False):
         cap = cv.VideoCapture(video)
-        total_frames = self.count_frames(cap, video)
+        total_frames = self.count_frames(cap, video, force)
         frame_step = floor(total_frames/nbframe/2)
         # TODO: fix that, a tiny video can have a frame_step that is
         # under 1
@@ -377,7 +380,6 @@ class VideoFrameGenerator(Sequence):
         while True:
             grabbed, frame = cap.read()
             if not grabbed:
-                cap.release()
                 break
 
             frame_i += 1
@@ -397,7 +399,24 @@ class VideoFrameGenerator(Sequence):
                 # keep frame
                 frames.append(frame)
 
-                if len(frames) == nbframe:
-                    break
+            if len(frames) == nbframe:
+                break
 
-        return frames
+        cap.release()
+
+        if not force and len(frames) != nbframe:
+            # There is a problem here
+            # That means that frame count in header is wrong or broken,
+            # so we need to force the full read of video to get the right
+            # frame counter
+            return self._get_frames(video, nbframe, shape, force=True)
+
+        if force and len(frames) != nbframe:
+            # and if we really couldn't find the real frame counter
+            # so we return None. Sorry, nothing can be done...
+            log.error("Frame count is not OK for video %s, "
+                      "%d total, %d extracted" % (
+                        video, total_frames, len(frames)))
+            return None
+
+        return np.array(frames)
