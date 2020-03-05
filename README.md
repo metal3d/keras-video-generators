@@ -62,6 +62,12 @@ Each of these generators accepts parameters:
 # Changelog
 
 
+## v1.0.11
+- set generator to be Iterable
+- frame cache was disabled by error, it's back now
+- fixup import Sequence from `tensorflow.keras`
+- fix frame count problems for video with bad headers
+
 ## v1.0.10
 - fix Windows problems with path using backslashes
 - add auto discovery for classes if "None" is sent
