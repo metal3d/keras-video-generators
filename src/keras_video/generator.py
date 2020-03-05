@@ -17,11 +17,11 @@ log = logging.getLogger()
 
 # Try to import keras resources from tensorflow
 try:
-    from tensorflow.keras.utils.data_utils import Sequence
+    from tensorflow.keras.utils import Sequence
     from tensorflow.keras.preprocessing.image import \
         ImageDataGenerator, img_to_array
 except ModuleNotFoundError:
-    from keras.utils.data_utils import Sequence
+    from keras.utils import Sequence
     from keras.preprocessing.image import \
         ImageDataGenerator, img_to_array
 
@@ -42,6 +42,8 @@ class VideoFrameGenerator(Sequence):
     - nb_channel: int, 1 or 3, to get grayscaled or RGB images
     - glob_pattern: string, directory path with '{classname}' inside that \
         will be replaced by one of the class list
+    - use_header: bool, default to True to use video header to read the \
+        frame count if possible
 
     You may use the "classes" property to retrieve the class list afterward.
     The generator has that properties initialized:
@@ -67,6 +69,7 @@ class VideoFrameGenerator(Sequence):
             split_val: float = None,
             nb_channel: int = 3,
             glob_pattern: str = './videos/{classname}/*.avi',
+            use_headers: bool = True,
             *args,
             **kwargs):
 
@@ -104,6 +107,8 @@ class VideoFrameGenerator(Sequence):
 
         if split_test is not None:
             assert 0.0 < split_test < 1.0
+
+        self.use_video_header = use_headers
 
         # then we don't need None anymore
         split_val = split_val if split_val is not None else 0.0
@@ -209,15 +214,15 @@ class VideoFrameGenerator(Sequence):
             self.files_count,
             kind))
 
-    def count_frames(self, cap, name):
+    def count_frames(self, cap, name, force_no_headers=False):
         """ Count number of frame for video
         if it's not possible with headers """
-        if name in self._framecounters:
+        if not force_no_headers and name in self._framecounters:
             return self._framecounters[name]
 
         total = cap.get(cv.CAP_PROP_FRAME_COUNT)
 
-        if total < 0:
+        if force_no_headers or total < 0:
             # headers not ok
             total = 0
             # TODO: we're unable to use CAP_PROP_POS_FRAME here
@@ -272,6 +277,7 @@ class VideoFrameGenerator(Sequence):
             shuffle=self.shuffle,
             rescale=self.rescale,
             glob_pattern=self.glob_pattern,
+            use_headers=self.use_video_header,
             _validation_data=self.validation)
 
     def get_test_generator(self):
@@ -285,6 +291,7 @@ class VideoFrameGenerator(Sequence):
             shuffle=self.shuffle,
             rescale=self.rescale,
             glob_pattern=self.glob_pattern,
+            use_headers=self.use_video_header,
             _test_data=self.test)
 
     def on_epoch_end(self):
@@ -299,6 +306,12 @@ class VideoFrameGenerator(Sequence):
 
         if self.shuffle:
             np.random.shuffle(self.indexes)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
 
     def __len__(self):
         return int(np.floor(self.files_count / self.batch_size))
@@ -329,7 +342,18 @@ class VideoFrameGenerator(Sequence):
             label[col] = 1.
 
             if video not in self.__frame_cache:
-                frames = self._get_frames(video, nbframe, shape)
+                frames = self._get_frames(
+                    video,
+                    nbframe,
+                    shape,
+                    force_no_headers=not self.use_video_header)
+                if frames is None:
+                    # avoid failure, nevermind that video...
+                    continue
+
+                # add to cache
+                self.__frame_cache[video] = frames
+
             else:
                 frames = self.__frame_cache[video]
 
@@ -364,9 +388,9 @@ class VideoFrameGenerator(Sequence):
         classname = re.findall(pattern, video)[0]
         return classname
 
-    def _get_frames(self, video, nbframe, shape):
+    def _get_frames(self, video, nbframe, shape, force_no_headers=False):
         cap = cv.VideoCapture(video)
-        total_frames = self.count_frames(cap, video)
+        total_frames = self.count_frames(cap, video, force_no_headers)
         frame_step = floor(total_frames/nbframe/2)
         # TODO: fix that, a tiny video can have a frame_step that is
         # under 1
@@ -377,7 +401,6 @@ class VideoFrameGenerator(Sequence):
         while True:
             grabbed, frame = cap.read()
             if not grabbed:
-                cap.release()
                 break
 
             frame_i += 1
@@ -397,7 +420,28 @@ class VideoFrameGenerator(Sequence):
                 # keep frame
                 frames.append(frame)
 
-                if len(frames) == nbframe:
-                    break
+            if len(frames) == nbframe:
+                break
 
-        return frames
+        cap.release()
+
+        if not force_no_headers and len(frames) != nbframe:
+            # There is a problem here
+            # That means that frame count in header is wrong or broken,
+            # so we need to force the full read of video to get the right
+            # frame counter
+            return self._get_frames(
+                    video,
+                    nbframe,
+                    shape,
+                    force_no_headers=True)
+
+        if force_no_headers and len(frames) != nbframe:
+            # and if we really couldn't find the real frame counter
+            # so we return None. Sorry, nothing can be done...
+            log.error("Frame count is not OK for video %s, "
+                      "%d total, %d extracted" % (
+                        video, total_frames, len(frames)))
+            return None
+
+        return np.array(frames)
