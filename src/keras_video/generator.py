@@ -17,11 +17,11 @@ log = logging.getLogger()
 
 # Try to import keras resources from tensorflow
 try:
-    from tensorflow.keras.utils.data_utils import Sequence
+    from tensorflow.keras.utils import Sequence
     from tensorflow.keras.preprocessing.image import \
         ImageDataGenerator, img_to_array
 except ModuleNotFoundError:
-    from keras.utils.data_utils import Sequence
+    from keras.utils import Sequence
     from keras.preprocessing.image import \
         ImageDataGenerator, img_to_array
 
