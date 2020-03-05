@@ -307,6 +307,12 @@ class VideoFrameGenerator(Sequence):
         if self.shuffle:
             np.random.shuffle(self.indexes)
 
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
+
     def __len__(self):
         return int(np.floor(self.files_count / self.batch_size))
 
