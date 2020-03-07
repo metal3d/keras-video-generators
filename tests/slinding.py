@@ -38,9 +38,19 @@ class TestSlinding(unittest.TestCase):
 
         assert g.files_count == 30
 
+        # check get item
+        seq, labels = next(g)
+        assert seq.shape == (16, 5, 224, 224, 3)
+        assert labels.shape == (16, 3)
+
     def test_with_transformation(self):
         """ Check if transformation works with slinding frame generator """
         tr = keras.preprocessing.image.ImageDataGenerator(rotation_range=10)
-        keras_video.SlidingFrameGenerator(
+        g = keras_video.SlidingFrameGenerator(
             transformation=tr,
             glob_pattern=os.path.join(self.testdir, '{classname}_*.ogv'))
+
+        # check get item
+        seq, labels = next(g)
+        assert seq.shape == (16, 5, 224, 224, 3)
+        assert labels.shape == (16, 3)
