@@ -61,6 +61,8 @@ Each of these generators accepts parameters:
 
 # Changelog
 
+## v1.0.12
+- fix transformation error with SlidingFrameGenerator
 
 ## v1.0.11
 - set generator to be Iterable
