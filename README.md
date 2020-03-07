@@ -47,7 +47,7 @@ The package contains 3 generators that inherits `Sequence` interface. So they ma
 
 - `VideoFrameGenerator` that will take the choosen number of frames from the entire video
 - `SlidingFrameGenerator` that takes frames with decay for the entire video or with a sequence time
-- `OpticalFlowGenerator` that gives optical flow sequence from frames with different methods
+- `OpticalFlowGenerator` that gives optical flow sequence from frames with different methods (experimental)
 
 Each of these generators accepts parameters:
 
