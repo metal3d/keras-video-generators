@@ -18,4 +18,4 @@ tests:
 tests-html:
 	nosetests -v tests/*.py --with-coverage --cover-package keras_video \
 		--cover-html --cover-html-dir=coverage
-	xdg-open coverage
+	xdg-open coverage/index.html
