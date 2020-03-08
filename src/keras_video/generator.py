@@ -199,7 +199,8 @@ class VideoFrameGenerator(Sequence):
         self.classes_count = len(classes)
 
         # to initialize transformations and shuffle indices
-        self.on_epoch_end()
+        if 'no_epoch_at_init' not in kwargs:
+            self.on_epoch_end()
 
         kind = "train"
         if _validation_data is not None:

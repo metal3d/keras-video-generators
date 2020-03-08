@@ -1,4 +1,5 @@
 import keras_video
+import keras
 import unittest
 import os
 import sys
@@ -6,7 +7,7 @@ import shutil
 sys.path.insert(0, './src')
 
 
-class TestDiscovery(unittest.TestCase):
+class TestSlinding(unittest.TestCase):
 
     testdir = 'test_vids'
 
@@ -27,10 +28,9 @@ class TestDiscovery(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.testdir)
 
-    def test_find_classes(self):
-        """ Check classe auto discovery """
-
-        g = keras_video.VideoFrameGenerator(
+    def test_init(self):
+        """ Check if slinding generator init """
+        g = keras_video.SlidingFrameGenerator(
             glob_pattern=os.path.join(self.testdir, '{classname}_*.ogv'))
         assert 'A' in g.classes
         assert 'B' in g.classes
@@ -38,17 +38,19 @@ class TestDiscovery(unittest.TestCase):
 
         assert g.files_count == 30
 
-    def test_iterator(self):
-        """ Check if generator is an iterator """
-        g = keras_video.VideoFrameGenerator(
-            batch_size=4,
-            nb_frames=6,
-            target_shape=(64, 64),
+        # check get item
+        seq, labels = next(g)
+        assert seq.shape == (16, 5, 224, 224, 3)
+        assert labels.shape == (16, 3)
+
+    def test_with_transformation(self):
+        """ Check if transformation works with slinding frame generator """
+        tr = keras.preprocessing.image.ImageDataGenerator(rotation_range=10)
+        g = keras_video.SlidingFrameGenerator(
+            transformation=tr,
             glob_pattern=os.path.join(self.testdir, '{classname}_*.ogv'))
 
-        # iterator object should be able to
-        # use "next()" function
-        x, y = next(g)
-
-        assert x.shape == (4, 6, 64, 64, 3)
-        assert y.shape == (4, 3)
+        # check get item
+        seq, labels = next(g)
+        assert seq.shape == (16, 5, 224, 224, 3)
+        assert labels.shape == (16, 3)

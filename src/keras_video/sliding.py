@@ -53,7 +53,7 @@ class SlidingFrameGenerator(VideoFrameGenerator):
     """
 
     def __init__(self, *args, sequence_time: int = None, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(no_epoch_at_init=True, *args, **kwargs)
         self.sequence_time = sequence_time
 
         self.sample_count = 0
