@@ -61,6 +61,9 @@ Each of these generators accepts parameters:
 
 # Changelog
 
+## v1.0.13
+- try to fix SageMaker problem by avoiding usage of internal keras from tensorflow
+
 ## v1.0.12
 - fix transformation error with SlidingFrameGenerator
 

@@ -15,15 +15,9 @@ import logging
 import re
 log = logging.getLogger()
 
-# Try to import keras resources from tensorflow
-try:
-    from tensorflow.keras.utils import Sequence
-    from tensorflow.keras.preprocessing.image import \
-        ImageDataGenerator, img_to_array
-except ModuleNotFoundError:
-    from keras.utils import Sequence
-    from keras.preprocessing.image import \
-        ImageDataGenerator, img_to_array
+from keras.utils import Sequence
+from keras.preprocessing.image import \
+    ImageDataGenerator, img_to_array
 
 
 class VideoFrameGenerator(Sequence):
