@@ -19,11 +19,7 @@ Several methods are defined:
 import numpy as np
 import cv2 as cv
 from .generator import VideoFrameGenerator
-
-try:
-    import tensorflow.keras.preprocessing.image as kimage
-except ModuleNotFoundError:
-    import keras.preprocessing.image as kimage
+import keras.preprocessing.image as kimage
 
 METHOD_OPTICAL_FLOW = 1
 METHOD_FLOW_MASK = 2
