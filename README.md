@@ -10,7 +10,7 @@ See articles:
 - [The basics of Video frame as input](https://medium.com/smileinnovation/how-to-work-with-time-distributed-data-in-a-neural-network-b8b39aa4ce00)
 - [Usage of these generators here](https://medium.com/smileinnovation/training-neural-network-with-image-sequence-an-example-with-video-as-input-c3407f7a0b0f)
 
-An privded example of usage can be [displayed in nbviewer here](https://nbviewer.jupyter.org/github/metal3d/keras-video-generators/blob/master/Example%20of%20usage.ipynb).
+An provided example of usage can be [displayed in nbviewer here](https://nbviewer.jupyter.org/github/metal3d/keras-video-generators/blob/master/Example%20of%20usage.ipynb).
 
 Requirements are:
 
