@@ -386,7 +386,10 @@ class VideoFrameGenerator(Sequence):
     def _get_frames(self, video, nbframe, shape, force_no_headers=False):
         cap = cv.VideoCapture(video)
         total_frames = self.count_frames(cap, video, force_no_headers)
-        frame_step = floor(total_frames/nbframe/2)
+        orig_total = total_frames
+        if total_frames % 2 != 0:
+            total_frames += 1
+        frame_step = floor(total_frames/(nbframe-1))
         # TODO: fix that, a tiny video can have a frame_step that is
         # under 1
         frame_step = max(1, frame_step)
@@ -399,7 +402,7 @@ class VideoFrameGenerator(Sequence):
                 break
 
             frame_i += 1
-            if frame_i % frame_step == 0:
+            if frame_i == 1 or frame_i % frame_step == 0 or frame_i == orig_total:
                 # resize
                 frame = cv.resize(frame, shape)
 
