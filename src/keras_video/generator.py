@@ -347,7 +347,8 @@ class VideoFrameGenerator(Sequence):
                     continue
 
                 # add to cache
-                self.__frame_cache[video] = frames
+                if self.use_frame_cache:
+                    self.__frame_cache[video] = frames
 
             else:
                 frames = self.__frame_cache[video]
