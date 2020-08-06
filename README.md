@@ -1,10 +1,9 @@
 [![PyPI version](https://badge.fury.io/py/keras-video-generators.svg)](https://pypi.org/project/keras-video-generators/) [![Build Status](https://travis-ci.org/metal3d/keras-video-generators.svg?branch=master)](https://travis-ci.org/metal3d/keras-video-generators)
 
-# Keras Sequence Video generators
+# Keras Sequence Video Generators
 
-This package proposes some classes to work with Keras (included in TensorFlow) that generates batches of frames from video files.
+This package offers classes that generate sequences of frames from video files using Keras (officially included in TensorFlow as of the 2.0 release). The resulting frame sequences work with the Time Distributed, GRU, LSTM, and other recurrent layers.
 
-It is useful to work with Time Distributed Layer with Video input (frames). Then you may use GRU or LSTM. 
 See articles:
 
 - [The basics of Video frame as input](https://medium.com/smileinnovation/how-to-work-with-time-distributed-data-in-a-neural-network-b8b39aa4ce00)
@@ -35,7 +34,7 @@ You can install the package via `pip`:
 pip install keras-video-generators
 ```
 
-If you want to build from sources, clone the repository then:
+If you want to build from source, clone the repository then:
 
 ```bash
 python setup.py build
@@ -43,20 +42,33 @@ python setup.py build
 
 # Usage
 
-The package contains 3 generators that inherits `Sequence` interface. So they may be used with `model.fit_generator()`:
+The module name (keras_video) is different from the installation package name (keras-video-generators). Import the entire module with
 
-- `VideoFrameGenerator` that will take the choosen number of frames from the entire video
-- `SlidingFrameGenerator` that takes frames with decay for the entire video or with a sequence time
-- `OpticalFlowGenerator` that gives optical flow sequence from frames with different methods (experimental)
+```bash
+import keras_video
+```
 
-Each of these generators accepts parameters:
+or load a single generator:
 
-- `glob_pattern` that must contain `{classname}`, e.g. './videos/{classname}/*.avi' - the "classname" in string is used to detect classes
-- `nb_frames` that is the number of frame in the sequence
-- `batch_size` that is the number of sequence in one batch
-- `transformation` that can be `None` or or ImageDataGenerator to make data augmentation
-- `use_frame_cache` to use with caution, if set to `True`, the class will keep frames in memory (without augmentation). You need **a lot of memory**
-- and many more, see class documentation
+```bash
+from keras_video import VideoFrameGenerator
+```
+
+The package contains three generators that inherit the `Sequence` interface and may be used with `model.fit_generator()`:
+
+- `VideoFrameGenerator` provides a pre-determined number of frames from the entire video
+- `SlidingFrameGenerator` provides frames with decay for the entire video or with a sequence time
+- `OpticalFlowGenerator` provides an optical flow sequence from frames with different methods (experimental)
+
+Each generator accepts a standard set of parameters:
+
+- `glob_pattern`; must contain `{classname}`, e.g. './videos/{classname}/*.avi' - the "classname" in string is used to detect classes
+- `nb_frames`; the number of frames in the sequence
+- `batch_size`; the number of sequences in one batch
+- `transformation`; can be `None` or ImageDataGenerator (Keras) for data augmentation
+- `use_frame_cache`; use with caution, if set to `True`, the class will keep frames in memory (without augmentation). You need **a lot of memory**
+
+See the class documentation for all parameters.
 
 
 # Changelog
