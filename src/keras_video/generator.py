@@ -356,7 +356,7 @@ class VideoFrameGenerator(Sequence):
             # apply transformation
             if transformation is not None:
                 frames = [self.transformation.apply_transform(
-                    frame, transformation) for frame in frames]
+                    self.transformation.standardize(frame), transformation) for frame in frames]
 
             # add the sequence in batch
             images.append(frames)
