@@ -163,10 +163,11 @@ class SlidingFrameGenerator(VideoFrameGenerator):
             col = classes.index(classname)
             label[col] = 1.
 
-            if vid['id'] not in self.__frame_cache:
+            video_id = vid['id'] 
+            if video_id not in self.__frame_cache:
                 frames = self._get_frames(video, nbframe, shape)
             else:
-                frames = self.__frame_cache[vid['id']]
+                frames = self.__frame_cache[video_id]
 
             # apply transformation
             if transformation is not None:
