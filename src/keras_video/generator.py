@@ -142,6 +142,7 @@ class VideoFrameGenerator(Sequence):
             if split_val > 0 or split_test > 0:
                 for cls in classes:
                     files = glob.glob(glob_pattern.format(classname=cls))
+                    print('All files: \n',files)
                     nbval = 0
                     nbtest = 0
                     info = []
@@ -175,6 +176,7 @@ class VideoFrameGenerator(Sequence):
                         # remove test from train
                         indexes = np.array(
                             [i for i in indexes if i not in val_test])
+                        print('Test indexes',indexes)
                         self.test += [files[i] for i in val_test]
                         info.append("test count: %d" % nbtest)
 
