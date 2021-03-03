@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a8f50f8c8b544e46b105537e01855dc7)](https://app.codacy.com/gh/metal3d/keras-video-generators?utm_source=github.com&utm_medium=referral&utm_content=metal3d/keras-video-generators&utm_campaign=Badge_Grade_Settings)
 [![PyPI version](https://badge.fury.io/py/keras-video-generators.svg)](https://pypi.org/project/keras-video-generators/) [![Build Status](https://travis-ci.org/metal3d/keras-video-generators.svg?branch=master)](https://travis-ci.org/metal3d/keras-video-generators)
 
 # Keras Sequence Video Generators
