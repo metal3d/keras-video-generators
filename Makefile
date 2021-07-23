@@ -13,7 +13,8 @@ clean:
 	rm -rf *.egg-info build dist src/keras_video_generators.egg-info
 
 tests:
-	nosetests -v tests/*.py --with-coverage --cover-package keras_video
+	nosetests -v tests/*.py --with-coverage --cover-package keras_video \
+		--cover-xml --cover-xml-file=coverage-reports/coverage-keras-videos-generator.xml
 
 tests-html:
 	nosetests -v tests/*.py --with-coverage --cover-package keras_video \

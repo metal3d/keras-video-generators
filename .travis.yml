@@ -1,11 +1,17 @@
+addons:
+  sonarcloud:
+    organization: "metal3d"
+    token:
+      secure: "r47b15Vhyw+aG9+lzcA2Ra/l7sXEHPIoMiWp0mCBuivNrWGfIC86Uyh4W42/KeUJupIBFTdQYQAUa7mYYKGlpjk7J8EQpYmJv18MFeW20N7NyICTwxBm340K3KiCJ9FHgWwFe6XQuzSf8YPy8R2UpokGmTqO/AA+obZRA8WQHb9gz1dOKaH7m56veRkxo/Hq0TtlC5IVWs3QeZSQbtUG0mqAoW9xBTVxGCwFFzBrkdec82NTtddozk0loa13FpcT5qlZa8ygWS6A6+vx6sTsJgX5hWxRfbEJJBxpIZaSd/fJheaw/2QMLZ1KOLkNGoZkxSh/qvKpsl5cg6RxDFmGpo7Kq6U1cA7j0aTKSXjLBTJauqzJDsrQj9rBZotmRf734+4ltk6OKI/92zuZPNoJnyAo8xXBoPdrgTkz7Gk79ArRtfFTtPUdrFuUE7oIlblVnlr06bq/kQcGxqORlxn0mgOYHLeQgDFNAdUwOmxxohFjhKggrQIxMGHqX002ZQG0sEnbPyxS2A7k0Plpesgd6ZYDzx9RNZSZlO5BKRLuu23wqd007e7w77UjPMcM84JflYZgni29hWVrhIt2R+pIL52r6eYPiGoln5Te+xH+bmDTfZvXdt/upE7QR5jUXeDr+GAAoVJRNVNM81Io6CjrFU4q6i6L0BJmDwsB6vumG2A=" # encrypted value of your token
+
 language: python
 python:
 - 3.7
 - 3.8
 - 3.9
 install:
-  - python setup.py install
-  - pip install -r requirements-tests.txt
-# command to run tests
+- python setup.py install
+- pip install -r requirements-tests.txt
 script:
-  - make tests
+- make tests
+- sonar-scanner
