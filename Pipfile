@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+numpy = "*"
+opencv-python = "*"
+matplotlib = "*"
+make = "*"
+tensorflow = "*"
+scipy = "*"
+
+[dev-packages]
+nose = "*"
+coverage = "*"
+tensorflow = "*"
+scipy = "*"
+pylint = "*"
+
+[requires]
+python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true
