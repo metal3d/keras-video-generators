@@ -148,6 +148,8 @@ class VideoFrameGenerator(Sequence):
                     if shuffle:
                         np.random.shuffle(indexes)
 
+                    nbtrain = 0
+
                     if 0.0 < split_val < 1.0:
                         nbval = int(split_val * len(files))
                         nbtrain = len(files) - nbval
