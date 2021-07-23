@@ -11,6 +11,7 @@ import logging
 import os
 import re
 from math import floor
+from typing import Iterable, Optional
 
 import cv2 as cv
 import numpy as np
@@ -384,7 +385,9 @@ class VideoFrameGenerator(Sequence):
         classname = re.findall(pattern, video)[0]
         return classname
 
-    def _get_frames(self, video, nbframe, shape, force_no_headers=False):
+    def _get_frames(
+        self, video, nbframe, shape, force_no_headers=False
+    ) -> Optional[Iterable]:
         cap = cv.VideoCapture(video)
         total_frames = self.count_frames(cap, video, force_no_headers)
         orig_total = total_frames

@@ -9,8 +9,7 @@ sequences for the same action.
 
 """
 
-import os
-from math import floor
+from typing import Iterable
 
 import cv2 as cv
 import numpy as np
@@ -173,9 +172,9 @@ class SlidingFrameGenerator(VideoFrameGenerator):
 
             video_id = vid["id"]
             if video_id not in self.__frame_cache:
-                frames = self._get_frames(video, nbframe, shape)
+                frames: Iterable = self._get_frames(video, nbframe, shape)
             else:
-                frames = self.__frame_cache[video_id]
+                frames: Iterable = self.__frame_cache[video_id]
 
             # apply transformation
             if transformation is not None:
