@@ -74,6 +74,12 @@ See the class documentation for all parameters.
 
 # Changelog
 
+## v1.1.0
+- TensorFlow 2.5 compatibility
+- Code cleanup
+- Fixup some unbound variables
+
+
 ## v1.0.14
 - Changes to get first and last frames in sequence
 
