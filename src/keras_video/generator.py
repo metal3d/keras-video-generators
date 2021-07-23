@@ -223,7 +223,7 @@ class VideoFrameGenerator(Sequence):
             # pointer position of "cap"
             c = cv.VideoCapture(name)
             while True:
-                grabbed, frame = c.read()
+                grabbed, _ = c.read()
                 if not grabbed:
                     # rewind and stop
                     break
@@ -242,10 +242,10 @@ class VideoFrameGenerator(Sequence):
 
         files = glob.glob(self.glob_pattern.replace("{classname}", "*"))
         classes = set()
-        for f in files:
-            f = os.path.realpath(f)
-            cl = re.findall(pattern, f)[0]
-            classes.add(cl)
+        for filename in files:
+            filename = os.path.realpath(filename)
+            classname = re.findall(pattern, filename)[0]
+            classes.add(classname)
 
         return list(classes)
 
