@@ -22,7 +22,7 @@ from tensorflow.keras.utils import Sequence
 log = logging.getLogger()
 
 
-class VideoFrameGenerator(Sequence):
+class VideoFrameGenerator(Sequence):  # pylint: disable=too-many-instance-attributes
     """
     Create a generator that return batches of frames from video
     - rescale: float fraction to rescale pixel data (commonly 1/255.)
@@ -53,7 +53,7 @@ class VideoFrameGenerator(Sequence):
         used by the generator.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-statements,too-many-locals,too-many-branches,too-many-arguments
         self,
         rescale=1 / 255.0,
         nb_frames: int = 5,
@@ -62,15 +62,14 @@ class VideoFrameGenerator(Sequence):
         use_frame_cache: bool = False,
         target_shape: tuple = (224, 224),
         shuffle: bool = True,
-        transformation: ImageDataGenerator = None,
+        transformation: Optional[ImageDataGenerator] = None,
         split_test: float = None,
         split_val: float = None,
         nb_channel: int = 3,
         glob_pattern: str = "./videos/{classname}/*.avi",
         use_headers: bool = True,
         seed=None,
-        *args,
-        **kwargs
+        **kwargs,
     ):
 
         self.glob_pattern = glob_pattern
@@ -227,9 +226,9 @@ class VideoFrameGenerator(Sequence):
             # TODO: we're unable to use CAP_PROP_POS_FRAME here
             # so we open a new capture to not change the
             # pointer position of "cap"
-            c = cv.VideoCapture(name)
+            capture = cv.VideoCapture(name)
             while True:
-                grabbed, _ = c.read()
+                grabbed, _ = capture.read()
                 if not grabbed:
                     # rewind and stop
                     break
@@ -330,9 +329,6 @@ class VideoFrameGenerator(Sequence):
         transformation = None
 
         for i in indexes:
-            # prepare a transformation if provided
-            if self.transformation is not None:
-                transformation = self._random_trans[i]
 
             video = self.files[i]
             classname = self._get_classname(video)
@@ -358,9 +354,13 @@ class VideoFrameGenerator(Sequence):
                 frames = self.__frame_cache[video]
 
             # apply transformation
-            if transformation is not None:
+            # if provided
+            if self.transformation is not None:
+                transformation = self._random_trans[i]
                 frames = [
                     self.transformation.apply_transform(frame, transformation)
+                    if transformation is not None
+                    else frame
                     for frame in frames
                 ]
 
@@ -396,8 +396,10 @@ class VideoFrameGenerator(Sequence):
         cap = cv.VideoCapture(video)
         total_frames = self.count_frames(cap, video, force_no_headers)
         orig_total = total_frames
+
         if total_frames % 2 != 0:
             total_frames += 1
+
         frame_step = floor(total_frames / (nbframe - 1))
         # TODO: fix that, a tiny video can have a frame_step that is
         # under 1
@@ -410,22 +412,9 @@ class VideoFrameGenerator(Sequence):
             if not grabbed:
                 break
 
-            frame_i += 1
-            if frame_i == 1 or frame_i % frame_step == 0 or frame_i == orig_total:
-                # resize
-                frame = cv.resize(frame, shape)
-
-                # use RGB or Grayscale ?
-                if self.nb_channel == 3:
-                    frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-                else:
-                    frame = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
-
-                # to np
-                frame = img_to_array(frame) * self.rescale
-
-                # keep frame
-                frames.append(frame)
+            self.__add_and_convert_frame(
+                frame, frame_i, frames, orig_total, shape, frame_step
+            )
 
             if len(frames) == nbframe:
                 break
@@ -443,9 +432,30 @@ class VideoFrameGenerator(Sequence):
             # and if we really couldn't find the real frame counter
             # so we return None. Sorry, nothing can be done...
             log.error(
-                "Frame count is not OK for video %s, "
-                "%d total, %d extracted" % (video, total_frames, len(frames))
+                f"Frame count is not OK for video {video}, "
+                f"{total_frames} total, {len(frames)} extracted"
             )
             return None
 
         return np.array(frames)
+
+    def __add_and_convert_frame(  # pylint: disable=too-many-arguments
+        self, frame, frame_i, frames, orig_total, shape, frame_step
+    ):
+        frame_i += 1
+        if frame_i in (1, orig_total) or frame_i % frame_step == 0:
+            # resize
+            frame = cv.resize(frame, shape)
+
+            # use RGB or Grayscale ?
+            frame = (
+                cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+                if self.nb_channel == 3
+                else cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
+            )
+
+            # to np
+            frame = img_to_array(frame) * self.rescale
+
+            # keep frame
+            frames.append(frame)
