@@ -7,15 +7,12 @@ name = "pypi"
 numpy = "*"
 opencv-python = "*"
 matplotlib = "*"
-make = "*"
 tensorflow = "*"
 scipy = "*"
 
 [dev-packages]
 nose = "*"
 coverage = "*"
-tensorflow = "*"
-scipy = "*"
 pylint = "*"
 
 [requires]
