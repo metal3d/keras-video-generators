@@ -41,6 +41,8 @@ class VideoFrameGenerator(Sequence):
     - use_header: bool, default to True to use video header to read the \
         frame count if possible
 
+    - seed: int, default to None, keep the seed value for split
+
     You may use the "classes" property to retrieve the class list afterward.
     The generator has that properties initialized:
     - classes_count: number of classes that the generator manages
@@ -66,6 +68,7 @@ class VideoFrameGenerator(Sequence):
         nb_channel: int = 3,
         glob_pattern: str = "./videos/{classname}/*.avi",
         use_headers: bool = True,
+        seed=None,
         *args,
         **kwargs
     ):
@@ -145,6 +148,8 @@ class VideoFrameGenerator(Sequence):
 
                     # generate validation and test indexes
                     indexes = np.arange(len(files))
+
+                    np.random.seed(seed)
 
                     if shuffle:
                         np.random.shuffle(indexes)
