@@ -3,9 +3,10 @@ Utils module to provide some nice functions to develop with Keras and
 Video sequences.
 """
 
-import numpy as np
 import random as rnd
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def show_sample(g, index=0, random=False, row_width=22, row_height=5):
@@ -33,7 +34,7 @@ def show_sample(g, index=0, random=False, row_width=22, row_height=5):
 
     rows = len(sequences)
     index = 1
-    plt.figure(figsize=(row_width, row_height*rows))
+    plt.figure(figsize=(row_width, row_height * rows))
     for batchid, sequence in enumerate(sequences):
         classid = np.argmax(labels[batchid])
         classname = g.classes[classid]
@@ -42,6 +43,6 @@ def show_sample(g, index=0, random=False, row_width=22, row_height=5):
             plt.subplot(rows, cols, index)
             plt.title(classname)
             plt.imshow(image)
-            plt.axis('off')
+            plt.axis("off")
             index += 1
     plt.show()

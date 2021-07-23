@@ -16,10 +16,11 @@ Several methods are defined:
 
 """
 
-import numpy as np
 import cv2 as cv
+import numpy as np
+import tensorflow.keras.preprocessing.image as kimage
+
 from .generator import VideoFrameGenerator
-import keras.preprocessing.image as kimage
 
 METHOD_OPTICAL_FLOW = 1
 METHOD_FLOW_MASK = 2
@@ -57,15 +58,16 @@ class OpticalFlowGenerator(VideoFrameGenerator):
     """
 
     def __init__(
-            self,
-            *args,
-            nb_frames=5,
-            method=METHOD_OPTICAL_FLOW,
-            flowlevel=3,
-            iterations=3,
-            winsize=15,
-            **kwargs):
-        super().__init__(nb_frames=nb_frames+1, *args, **kwargs)
+        self,
+        *args,
+        nb_frames=5,
+        method=METHOD_OPTICAL_FLOW,
+        flowlevel=3,
+        iterations=3,
+        winsize=15,
+        **kwargs
+    ):
+        super().__init__(nb_frames=nb_frames + 1, *args, **kwargs)
         self.flowlevel = flowlevel
         self.iterations = iterations
         self.winsize = winsize
@@ -107,13 +109,20 @@ class OpticalFlowGenerator(VideoFrameGenerator):
                 images[i] = cv.cvtColor(image, cv.COLOR_RGB2GRAY)
 
         flow = cv.calcOpticalFlowFarneback(
-            images[0], images[1],  # image prev and next
-            None, 0.5, self.flowlevel,
-            self.winsize, self.iterations,
-            5, 1.1, 0)
+            images[0],
+            images[1],  # image prev and next
+            None,
+            0.5,
+            self.flowlevel,
+            self.winsize,
+            self.iterations,
+            5,
+            1.1,
+            0,
+        )
 
         mag, ang = cv.cartToPolar(flow[..., 0], flow[..., 1])
-        hsv[..., 0] = ang*180/np.pi/2
+        hsv[..., 0] = ang * 180 / np.pi / 2
         hsv[..., 2] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
         rgb = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
 
@@ -123,12 +132,11 @@ class OpticalFlowGenerator(VideoFrameGenerator):
         return rgb
 
     def diff_mask(self, images):
-        """ Get absolute diff mask, then merge frames and apply the mask
-        """
+        """Get absolute diff mask, then merge frames and apply the mask"""
         mask = self.absdiff(images)
         mask = cv.GaussianBlur(mask, (15, 15), 0)
 
-        image = cv.addWeighted(images[0], .5, images[1], .5, 0)
+        image = cv.addWeighted(images[0], 0.5, images[1], 0.5, 0)
 
         return cv.multiply(image, mask)
 
@@ -136,10 +144,10 @@ class OpticalFlowGenerator(VideoFrameGenerator):
         """
         Get optical flow on images, then merge images and apply the mask
         """
-        mask = self.make_optical_flow(images) / 255.
+        mask = self.make_optical_flow(images) / 255.0
         mask = cv.GaussianBlur(mask, (15, 15), 0)
 
-        image = cv.addWeighted(images[0], .5, images[1], .5, 0)
+        image = cv.addWeighted(images[0], 0.5, images[1], 0.5, 0)
 
         return cv.multiply(image, mask)
 
@@ -147,7 +155,7 @@ class OpticalFlowGenerator(VideoFrameGenerator):
         """ Return the validation generator if you've provided split factor """
         return self.__class__(
             method=self.method,
-            nb_frames=self.nbframe-1,
+            nb_frames=self.nbframe - 1,
             nb_channel=self.nb_channel,
             target_shape=self.target_shape,
             classes=self.classes,
@@ -155,13 +163,14 @@ class OpticalFlowGenerator(VideoFrameGenerator):
             shuffle=self.shuffle,
             rescale=self.rescale,
             glob_pattern=self.glob_pattern,
-            _validation_data=self.validation)
+            _validation_data=self.validation,
+        )
 
     def get_test_generator(self):
         """ Return the validation generator if you've provided split factor """
         return self.__class__(
             method=self.method,
-            nb_frames=self.nbframe-1,
+            nb_frames=self.nbframe - 1,
             nb_channel=self.nb_channel,
             target_shape=self.target_shape,
             classes=self.classes,
@@ -169,7 +178,8 @@ class OpticalFlowGenerator(VideoFrameGenerator):
             shuffle=self.shuffle,
             rescale=self.rescale,
             glob_pattern=self.glob_pattern,
-            _test_data=self.test)
+            _test_data=self.test,
+        )
 
     def __getitem__(self, idx):
         batch = super().__getitem__(idx)
@@ -179,9 +189,10 @@ class OpticalFlowGenerator(VideoFrameGenerator):
             imgs = item
             batch_len = len(imgs)
             frames = []
-            for i in range(batch_len-1):
+            for i in range(batch_len - 1):
                 im1 = imgs[i]
-                im2 = imgs[i+1]
+                im2 = imgs[i + 1]
+                image = None
                 if self.method == METHOD_OPTICAL_FLOW:
                     image = self.make_optical_flow((im1, im2))
                 elif self.method == METHOD_ABS_DIFF:

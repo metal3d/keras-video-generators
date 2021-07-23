@@ -9,10 +9,11 @@ sequences for the same action.
 
 """
 
-import os
-import numpy as np
+from typing import Iterable
+
 import cv2 as cv
-from math import floor
+import numpy as np
+
 from .generator import VideoFrameGenerator
 
 
@@ -72,7 +73,7 @@ class SlidingFrameGenerator(VideoFrameGenerator):
             cap.release()
 
             if self.sequence_time is not None:
-                seqtime = int(fps*self.sequence_time)
+                seqtime = int(fps * self.sequence_time)
             else:
                 seqtime = int(frame_count)
 
@@ -80,18 +81,22 @@ class SlidingFrameGenerator(VideoFrameGenerator):
             step = np.ceil(seqtime / self.nbframe).astype(np.int) - 1
             i = 0
             while i <= frame_count - stop_at:
-                self.vid_info.append({
-                    'id': count,
-                    'name': filename,
-                    'frame_count': int(frame_count),
-                    'frames': np.arange(i, i + stop_at)[::step][:self.nbframe],
-                    'fps': fps,
-                })
+                self.vid_info.append(
+                    {
+                        "id": count,
+                        "name": filename,
+                        "frame_count": int(frame_count),
+                        "frames": np.arange(i, i + stop_at)[::step][: self.nbframe],
+                        "fps": fps,
+                    }
+                )
                 count += 1
                 i += 1
 
-        print("For %d files, I found %d possible sequence samples" %
-              (self.files_count, len(self.vid_info)))
+        print(
+            "For %d files, I found %d possible sequence samples"
+            % (self.files_count, len(self.vid_info))
+        )
         self.indexes = np.arange(len(self.vid_info))
 
     def on_epoch_end(self):
@@ -121,7 +126,8 @@ class SlidingFrameGenerator(VideoFrameGenerator):
             shuffle=self.shuffle,
             rescale=self.rescale,
             glob_pattern=self.glob_pattern,
-            _validation_data=self.validation)
+            _validation_data=self.validation,
+        )
 
     def get_test_generator(self):
         """ Return the validation generator if you've provided split factor """
@@ -135,7 +141,8 @@ class SlidingFrameGenerator(VideoFrameGenerator):
             shuffle=self.shuffle,
             rescale=self.rescale,
             glob_pattern=self.glob_pattern,
-            _test_data=self.test)
+            _test_data=self.test,
+        )
 
     def __getitem__(self, idx):
         classes = self.classes
@@ -145,7 +152,7 @@ class SlidingFrameGenerator(VideoFrameGenerator):
         labels = []
         images = []
 
-        indexes = self.indexes[idx*self.batch_size:(idx+1)*self.batch_size]
+        indexes = self.indexes[idx * self.batch_size : (idx + 1) * self.batch_size]
 
         transformation = None
 
@@ -155,24 +162,26 @@ class SlidingFrameGenerator(VideoFrameGenerator):
                 transformation = self._random_trans[i]
 
             vid = self.vid_info[i]
-            video = vid.get('name')
+            video = vid.get("name")
             classname = self._get_classname(video)
 
             # create a label array and set 1 to the right column
             label = np.zeros(len(classes))
             col = classes.index(classname)
-            label[col] = 1.
+            label[col] = 1.0
 
-            video_id = vid['id'] 
+            video_id = vid["id"]
             if video_id not in self.__frame_cache:
-                frames = self._get_frames(video, nbframe, shape)
+                frames: Iterable = self._get_frames(video, nbframe, shape)
             else:
-                frames = self.__frame_cache[video_id]
+                frames: Iterable = self.__frame_cache[video_id]
 
             # apply transformation
             if transformation is not None:
-                frames = [self.transformation.apply_transform(
-                    frame, transformation) for frame in frames]
+                frames = [
+                    self.transformation.apply_transform(frame, transformation)
+                    for frame in frames
+                ]
 
             # add the sequence in batch
             images.append(frames)
