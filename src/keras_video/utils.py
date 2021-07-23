@@ -4,6 +4,7 @@ Video sequences.
 """
 
 import random as rnd
+import secrets
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,7 +24,7 @@ def show_sample(g, index=0, random=False, row_width=22, row_height=5):
     """
     total = len(g)
     if random:
-        sample = rnd.randint(0, total)
+        sample = secrets.randbelow(total)
     else:
         sample = index
 
