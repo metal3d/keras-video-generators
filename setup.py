@@ -18,5 +18,11 @@ setup(
     url="https://github.com/metal3d/keras-video-generators",
     package_dir={"": "src"},
     packages=find_packages("src"),
-    install_requires=["tensorflow>=2.5", "numpy", "opencv-python", "matplotlib"],
+    install_requires=[
+        "tensorflow>=2.5",
+        "numpy~=1.19.2",
+        "opencv-python",
+        "matplotlib",
+        "scipy",
+    ],
 )
