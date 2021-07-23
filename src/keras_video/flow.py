@@ -192,6 +192,7 @@ class OpticalFlowGenerator(VideoFrameGenerator):
             for i in range(batch_len - 1):
                 im1 = imgs[i]
                 im2 = imgs[i + 1]
+                image = None
                 if self.method == METHOD_OPTICAL_FLOW:
                     image = self.make_optical_flow((im1, im2))
                 elif self.method == METHOD_ABS_DIFF:
