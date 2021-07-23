@@ -6,18 +6,19 @@ videos. It is useful for videos that are scaled from frame 0 to end
 and that have no noise frames.
 """
 
-import os
 import glob
-import numpy as np
-import cv2 as cv
-from math import floor
 import logging
+import os
 import re
-log = logging.getLogger()
+from math import floor
 
-from keras.utils import Sequence
-from keras.preprocessing.image import \
-    ImageDataGenerator, img_to_array
+import cv2 as cv
+import numpy as np
+from tensorflow.keras.preprocessing.image import (ImageDataGenerator,
+                                                  img_to_array)
+from tensorflow.keras.utils import Sequence
+
+log = logging.getLogger()
 
 
 class VideoFrameGenerator(Sequence):
@@ -50,30 +51,33 @@ class VideoFrameGenerator(Sequence):
     """
 
     def __init__(
-            self,
-            rescale=1/255.,
-            nb_frames: int = 5,
-            classes: list = None,
-            batch_size: int = 16,
-            use_frame_cache: bool = False,
-            target_shape: tuple = (224, 224),
-            shuffle: bool = True,
-            transformation: ImageDataGenerator = None,
-            split_test: float = None,
-            split_val: float = None,
-            nb_channel: int = 3,
-            glob_pattern: str = './videos/{classname}/*.avi',
-            use_headers: bool = True,
-            *args,
-            **kwargs):
+        self,
+        rescale=1 / 255.0,
+        nb_frames: int = 5,
+        classes: list = None,
+        batch_size: int = 16,
+        use_frame_cache: bool = False,
+        target_shape: tuple = (224, 224),
+        shuffle: bool = True,
+        transformation: ImageDataGenerator = None,
+        split_test: float = None,
+        split_val: float = None,
+        nb_channel: int = 3,
+        glob_pattern: str = "./videos/{classname}/*.avi",
+        use_headers: bool = True,
+        *args,
+        **kwargs
+    ):
 
         # deprecation
-        if 'split' in kwargs:
-            log.warn("Warning, `split` argument is replaced by `split_val`, "
-                     "please condider to change your source code."
-                     "The `split` argument will be removed "
-                     "in future releases.")
-            split_val = float(kwargs.get('split'))
+        if "split" in kwargs:
+            log.warn(
+                "Warning, `split` argument is replaced by `split_val`, "
+                "please condider to change your source code."
+                "The `split` argument will be removed "
+                "in future releases."
+            )
+            split_val = float(kwargs.get("split"))
 
         self.glob_pattern = glob_pattern
 
@@ -85,12 +89,14 @@ class VideoFrameGenerator(Sequence):
 
         # we should have classes
         if len(classes) == 0:
-            log.warn("You didn't provide classes list or "
-                     "we were not able to discover them from "
-                     "your pattern.\n"
-                     "Please check if the path is OK, and if the glob "
-                     "pattern is correct.\n"
-                     "See https://docs.python.org/3/library/glob.html")
+            log.warn(
+                "You didn't provide classes list or "
+                "we were not able to discover them from "
+                "your pattern.\n"
+                "Please check if the path is OK, and if the glob "
+                "pattern is correct.\n"
+                "See https://docs.python.org/3/library/glob.html"
+            )
 
         # shape size should be 2
         assert len(target_shape) == 2
@@ -127,8 +133,8 @@ class VideoFrameGenerator(Sequence):
         self.validation = []
         self.test = []
 
-        _validation_data = kwargs.get('_validation_data', None)
-        _test_data = kwargs.get('_test_data', None)
+        _validation_data = kwargs.get("_validation_data", None)
+        _test_data = kwargs.get("_test_data", None)
 
         if _validation_data is not None:
             # we only need to set files here
@@ -160,8 +166,7 @@ class VideoFrameGenerator(Sequence):
                         val = np.random.permutation(indexes)[:nbval]
 
                         # remove validation from train
-                        indexes = np.array(
-                            [i for i in indexes if i not in val])
+                        indexes = np.array([i for i in indexes if i not in val])
                         self.validation += [files[i] for i in val]
                         info.append("validation count: %d" % nbval)
 
@@ -173,15 +178,16 @@ class VideoFrameGenerator(Sequence):
                         val_test = np.random.permutation(indexes)[:nbtest]
 
                         # remove test from train
-                        indexes = np.array(
-                            [i for i in indexes if i not in val_test])
+                        indexes = np.array([i for i in indexes if i not in val_test])
                         self.test += [files[i] for i in val_test]
                         info.append("test count: %d" % nbtest)
 
                     # and now, make the file list
                     self.files += [files[i] for i in indexes]
-                    print("class %s, %s, train count: %d" %
-                          (cls, ", ".join(info), nbtrain))
+                    print(
+                        "class %s, %s, train count: %d"
+                        % (cls, ", ".join(info), nbtrain)
+                    )
 
             else:
                 for cls in classes:
@@ -193,7 +199,7 @@ class VideoFrameGenerator(Sequence):
         self.classes_count = len(classes)
 
         # to initialize transformations and shuffle indices
-        if 'no_epoch_at_init' not in kwargs:
+        if "no_epoch_at_init" not in kwargs:
             self.on_epoch_end()
 
         kind = "train"
@@ -204,14 +210,14 @@ class VideoFrameGenerator(Sequence):
 
         self._current = 0
         self._framecounters = {}
-        print("Total data: %d classes for %d files for %s" % (
-            self.classes_count,
-            self.files_count,
-            kind))
+        print(
+            "Total data: %d classes for %d files for %s"
+            % (self.classes_count, self.files_count, kind)
+        )
 
     def count_frames(self, cap, name, force_no_headers=False):
-        """ Count number of frame for video
-        if it's not possible with headers """
+        """Count number of frame for video
+        if it's not possible with headers"""
         if not force_no_headers and name in self._framecounters:
             return self._framecounters[name]
 
@@ -239,10 +245,10 @@ class VideoFrameGenerator(Sequence):
     def _discover_classes(self):
         pattern = os.path.realpath(self.glob_pattern)
         pattern = re.escape(pattern)
-        pattern = pattern.replace('\\{classname\\}', '(.*?)')
-        pattern = pattern.replace('\\*', '.*')
+        pattern = pattern.replace("\\{classname\\}", "(.*?)")
+        pattern = pattern.replace("\\*", ".*")
 
-        files = glob.glob(self.glob_pattern.replace('{classname}', '*'))
+        files = glob.glob(self.glob_pattern.replace("{classname}", "*"))
         classes = set()
         for f in files:
             f = os.path.realpath(f)
@@ -273,7 +279,8 @@ class VideoFrameGenerator(Sequence):
             rescale=self.rescale,
             glob_pattern=self.glob_pattern,
             use_headers=self.use_video_header,
-            _validation_data=self.validation)
+            _validation_data=self.validation,
+        )
 
     def get_test_generator(self):
         """ Return the validation generator if you've provided split factor """
@@ -287,7 +294,8 @@ class VideoFrameGenerator(Sequence):
             rescale=self.rescale,
             glob_pattern=self.glob_pattern,
             use_headers=self.use_video_header,
-            _test_data=self.test)
+            _test_data=self.test,
+        )
 
     def on_epoch_end(self):
         """ Called by Keras after each epoch """
@@ -319,7 +327,7 @@ class VideoFrameGenerator(Sequence):
         labels = []
         images = []
 
-        indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
+        indexes = self.indexes[index * self.batch_size : (index + 1) * self.batch_size]
 
         transformation = None
 
@@ -334,14 +342,12 @@ class VideoFrameGenerator(Sequence):
             # create a label array and set 1 to the right column
             label = np.zeros(len(classes))
             col = classes.index(classname)
-            label[col] = 1.
+            label[col] = 1.0
 
             if video not in self.__frame_cache:
                 frames = self._get_frames(
-                    video,
-                    nbframe,
-                    shape,
-                    force_no_headers=not self.use_video_header)
+                    video, nbframe, shape, force_no_headers=not self.use_video_header
+                )
                 if frames is None:
                     # avoid failure, nevermind that video...
                     continue
@@ -355,8 +361,10 @@ class VideoFrameGenerator(Sequence):
 
             # apply transformation
             if transformation is not None:
-                frames = [self.transformation.apply_transform(
-                    frame, transformation) for frame in frames]
+                frames = [
+                    self.transformation.apply_transform(frame, transformation)
+                    for frame in frames
+                ]
 
             # add the sequence in batch
             images.append(frames)
@@ -375,10 +383,10 @@ class VideoFrameGenerator(Sequence):
         pattern = re.escape(pattern)
 
         # get back "*" to make it ".*" in regexp
-        pattern = pattern.replace('\\*', '.*')
+        pattern = pattern.replace("\\*", ".*")
 
         # use {classname} as a capture
-        pattern = pattern.replace('\\{classname\\}', '(.*?)')
+        pattern = pattern.replace("\\{classname\\}", "(.*?)")
 
         # and find all occurence
         classname = re.findall(pattern, video)[0]
@@ -390,7 +398,7 @@ class VideoFrameGenerator(Sequence):
         orig_total = total_frames
         if total_frames % 2 != 0:
             total_frames += 1
-        frame_step = floor(total_frames/(nbframe-1))
+        frame_step = floor(total_frames / (nbframe - 1))
         # TODO: fix that, a tiny video can have a frame_step that is
         # under 1
         frame_step = max(1, frame_step)
@@ -429,18 +437,15 @@ class VideoFrameGenerator(Sequence):
             # That means that frame count in header is wrong or broken,
             # so we need to force the full read of video to get the right
             # frame counter
-            return self._get_frames(
-                    video,
-                    nbframe,
-                    shape,
-                    force_no_headers=True)
+            return self._get_frames(video, nbframe, shape, force_no_headers=True)
 
         if force_no_headers and len(frames) != nbframe:
             # and if we really couldn't find the real frame counter
             # so we return None. Sorry, nothing can be done...
-            log.error("Frame count is not OK for video %s, "
-                      "%d total, %d extracted" % (
-                        video, total_frames, len(frames)))
+            log.error(
+                "Frame count is not OK for video %s, "
+                "%d total, %d extracted" % (video, total_frames, len(frames))
+            )
             return None
 
         return np.array(frames)
