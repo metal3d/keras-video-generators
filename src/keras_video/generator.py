@@ -69,16 +69,6 @@ class VideoFrameGenerator(Sequence):
         **kwargs
     ):
 
-        # deprecation
-        if "split" in kwargs:
-            log.warn(
-                "Warning, `split` argument is replaced by `split_val`, "
-                "please condider to change your source code."
-                "The `split` argument will be removed "
-                "in future releases."
-            )
-            split_val = float(kwargs.get("split"))
-
         self.glob_pattern = glob_pattern
 
         # should be only RGB or Grayscale
