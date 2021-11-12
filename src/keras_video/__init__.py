@@ -28,7 +28,7 @@ sequence has got 5 frames sized to ``(224, 224)`` in RGB.
 
 """
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 from . import flow, generator, sliding
 
