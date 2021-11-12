@@ -80,7 +80,7 @@ class SlidingFrameGenerator(VideoFrameGenerator):
             stop_at = int(seqtime - self.nbframe)
             step = np.ceil(seqtime / self.nbframe).astype(np.int) - 1
             i = 0
-            while i <= frame_count - stop_at:
+            while stop_at > 0 and i <= frame_count - stop_at: # modified condition to ignore short video
                 self.vid_info.append(
                     {
                         "id": count,
