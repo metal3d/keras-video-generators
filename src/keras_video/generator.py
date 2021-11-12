@@ -55,7 +55,7 @@ class VideoFrameGenerator(Sequence):  # pylint: disable=too-many-instance-attrib
 
     def __init__(  # pylint: disable=too-many-statements,too-many-locals,too-many-branches,too-many-arguments
         self,
-        rescale=1 / 255.0,
+        rescale: float = 1 / 255.0,
         nb_frames: int = 5,
         classes: list = None,
         batch_size: int = 16,
@@ -192,52 +192,55 @@ class VideoFrameGenerator(Sequence):  # pylint: disable=too-many-instance-attrib
         return total
 
     def __split_from_vals(self, split_val, split_test, classes, shuffle, glob_pattern):
+        """ Split validation and test set """
 
-        if split_val > 0 or split_test > 0:
-            for cls in classes:
-                files = glob.glob(glob_pattern.format(classname=cls))
-                nbval = 0
-                nbtest = 0
-                info = []
-
-                # generate validation and test indexes
-                indexes = np.arange(len(files))
-
-                if shuffle:
-                    np.random.shuffle(indexes)
-
-                nbtrain = 0
-
-                if 0.0 < split_val < 1.0:
-                    nbval = int(split_val * len(files))
-                    nbtrain = len(files) - nbval
-
-                    # get some sample for validation_data
-                    val = np.random.permutation(indexes)[:nbval]
-
-                    # remove validation from train
-                    indexes = np.array([i for i in indexes if i not in val])
-                    self.validation += [files[i] for i in val]
-                    info.append("validation count: %d" % nbval)
-
-                if 0.0 < split_test < 1.0:
-                    nbtest = int(split_test * nbtrain)
-                    nbtrain = len(files) - nbval - nbtest
-
-                    # get some sample for test_data
-                    val_test = np.random.permutation(indexes)[:nbtest]
-
-                    # remove test from train
-                    indexes = np.array([i for i in indexes if i not in val_test])
-                    self.test += [files[i] for i in val_test]
-                    info.append("test count: %d" % nbtest)
-
-                # and now, make the file list
-                self.files += [files[i] for i in indexes]
-                print("class %s, %s, train count: %d" % (cls, ", ".join(info), nbtrain))
-        else:
+        if split_val == 0 or split_test == 0:
+            # no splitting, do the simplest thing
             for cls in classes:
                 self.files += glob.glob(glob_pattern.format(classname=cls))
+            return
+
+        # else, there is some split to do
+        for cls in classes:
+            files = glob.glob(glob_pattern.format(classname=cls))
+            nbval = 0
+            nbtest = 0
+            info = []
+
+            # generate validation and test indexes
+            indexes = np.arange(len(files))
+
+            if shuffle:
+                np.random.shuffle(indexes)
+
+            nbtrain = 0
+            if 0.0 < split_val < 1.0:
+                nbval = int(split_val * len(files))
+                nbtrain = len(files) - nbval
+
+                # get some sample for validation_data
+                val = np.random.permutation(indexes)[:nbval]
+
+                # remove validation from train
+                indexes = np.array([i for i in indexes if i not in val])
+                self.validation += [files[i] for i in val]
+                info.append("validation count: %d" % nbval)
+
+            if 0.0 < split_test < 1.0:
+                nbtest = int(split_test * nbtrain)
+                nbtrain = len(files) - nbval - nbtest
+
+                # get some sample for test_data
+                val_test = np.random.permutation(indexes)[:nbtest]
+
+                # remove test from train
+                indexes = np.array([i for i in indexes if i not in val_test])
+                self.test += [files[i] for i in val_test]
+                info.append("test count: %d" % nbtest)
+
+            # and now, make the file list
+            self.files += [files[i] for i in indexes]
+            print("class %s, %s, train count: %d" % (cls, ", ".join(info), nbtrain))
 
     def _discover_classes(self):
         pattern = os.path.realpath(self.glob_pattern)
