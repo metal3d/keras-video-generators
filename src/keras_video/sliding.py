@@ -77,6 +77,9 @@ class SlidingFrameGenerator(VideoFrameGenerator):
             else:
                 seqtime = int(frame_count)
 
+            # add an asssert to check if nbframe is possible in sequence_time
+            assert self.nbframe < seqtime, "ERROR nbframe > sequence_time change parameter and restart !"
+            
             stop_at = int(seqtime - self.nbframe)
             step = np.ceil(seqtime / self.nbframe).astype(np.int) - 1
             i = 0
@@ -172,7 +175,7 @@ class SlidingFrameGenerator(VideoFrameGenerator):
 
             video_id = vid["id"]
             if video_id not in self.__frame_cache:
-                frames: Iterable = self._get_frames(video, nbframe, shape)
+                frames: Iterable = self._get_frames(video, nbframe, shape, self.sequence_time if self.sequence_time != None else 0)
             else:
                 frames: Iterable = self.__frame_cache[video_id]
 
