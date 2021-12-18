@@ -175,7 +175,7 @@ class SlidingFrameGenerator(VideoFrameGenerator):
 
             video_id = vid["id"]
             if video_id not in self.__frame_cache:
-                frames: Iterable = self._get_frames(video, nbframe, shape, self.sequence_time)
+                frames: Iterable = self._get_frames(video, nbframe, shape, self.sequence_time if self.sequence_time != None else 0)
             else:
                 frames: Iterable = self.__frame_cache[video_id]
 
